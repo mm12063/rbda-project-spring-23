@@ -3,18 +3,20 @@ import os
 
 START_YR = 2015
 END_YR = 2021
+START_MONTH = 1
+END_MONTH = 12
 
 MAIN_DIR = 'parquet_files'
 if not os.path.exists(MAIN_DIR):
     os.mkdir(MAIN_DIR)
 
 total_byte_size = 0
-for year in range(START_YR, END_YR+1):
+for year in range(START_YR, END_YR + 1):
     dir = f'{MAIN_DIR}/{year}'
     if not os.path.exists(dir):
         os.mkdir(dir)
         print("Directory '% s' created" % dir)
-    for month in range(1, 13):
+    for month in range(START_MONTH, END_MONTH + 1):
         month = f'{month:02d}'
         file_str = f'yellow_tripdata_{year}-{month}.parquet'
         url = f'https://d37ci6vzurychx.cloudfront.net/trip-data/{file_str}'
