@@ -7,7 +7,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 public class YellowTaxiStatsTop10Reducer
         extends Reducer<NullWritable, Text, NullWritable, Text> {
-    private TreeMap<Integer, Text> repToRecordMap = new TreeMap<>();
+    private final TreeMap<Integer, Text> repToRecordMap = new TreeMap<>();
 
     @Override
     public void reduce(NullWritable key, Iterable<Text> values, Context context)

@@ -6,7 +6,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 public class YellowTaxiStatsTop10Mapper extends Mapper<LongWritable, Text, NullWritable, Text> {
-    private TreeMap<Integer, Text> repToRecordMap = new TreeMap<>();
+    private final TreeMap<Integer, Text> repToRecordMap = new TreeMap<>();
 
     @Override
     public void map(LongWritable key, Text value, Context context)

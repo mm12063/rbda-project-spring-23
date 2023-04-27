@@ -1,31 +1,10 @@
 import java.io.IOException;
-import java.util.*;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 public class YellowTaxiStatsMapper extends Mapper<LongWritable, Text, Text, YellowTaxiStatsTuple> {
-    private final Map<String, Integer> ColNames = new HashMap<>();
-    private YellowTaxiStatsTuple outTuple = new YellowTaxiStatsTuple();
-
-    public void setup(Context context) throws IOException, InterruptedException {
-        ColNames.put("pu_date", 0);
-        ColNames.put("pu_time", 1);
-        ColNames.put("do_date", 2);
-        ColNames.put("do_time", 3);
-        ColNames.put("htp_am", 4);
-        ColNames.put("htp_pm", 5);
-        ColNames.put("passenger_count", 6);
-        ColNames.put("trip_distance", 7);
-        ColNames.put("pu_loc_id", 8);
-        ColNames.put("do_loc_id", 9);
-        ColNames.put("payment_type", 10);
-        ColNames.put("total_cost", 11);
-    }
-
-    private String getValue(String col_name, String[] value){
-        return value[ColNames.get(col_name)];
-    }
+    private final YellowTaxiStatsTuple outTuple = new YellowTaxiStatsTuple();
 
     @Override
     public void map(LongWritable key, Text value, Context context)
@@ -34,7 +13,7 @@ public class YellowTaxiStatsMapper extends Mapper<LongWritable, Text, Text, Yell
         String[] values = value.toString().split(",");
         if (!values[0].equals("pu_date")) { // If it's the column name row, ignore it totally
             try {
-                double trip_dist = Double.parseDouble(getValue("trip_distance", values));
+                double trip_dist = Double.parseDouble(values[ParquetData.getColIdx(ColNames.TRIP_DISTANCE)]);
                 outTuple.setMin(trip_dist);
                 outTuple.setMax(trip_dist);
                 outTuple.setDistAvg(trip_dist);
@@ -46,7 +25,7 @@ public class YellowTaxiStatsMapper extends Mapper<LongWritable, Text, Text, Yell
             }
 
             try {
-                int pass_count = Integer.parseInt(getValue("passenger_count", values));
+                int pass_count = Integer.parseInt(values[ParquetData.getColIdx(ColNames.PASSENGER_COUNT)]);
                 outTuple.setPassAvg(pass_count);
                 context.write(new Text("passenger_count"), outTuple);
             } catch (Exception e) {
@@ -55,7 +34,7 @@ public class YellowTaxiStatsMapper extends Mapper<LongWritable, Text, Text, Yell
             }
 
             try {
-                double total_cost = Double.parseDouble(getValue("total_cost", values));
+                double total_cost = Double.parseDouble(values[ParquetData.getColIdx(ColNames.TOTAL_COST)]);
                 outTuple.setCostAvg(total_cost);
                 context.write(new Text("total_cost"), outTuple);
             } catch (Exception e) {

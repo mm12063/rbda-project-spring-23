@@ -5,7 +5,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 public class YellowTaxiStatsCounterReducer
         extends Reducer<Text, IntWritable, Text, IntWritable> {
-    private IntWritable result = new IntWritable();
+    private final IntWritable result = new IntWritable();
 
     @Override
     public void reduce(Text key, Iterable<IntWritable> values, Context context)
