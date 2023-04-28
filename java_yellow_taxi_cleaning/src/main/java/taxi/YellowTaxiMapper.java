@@ -14,10 +14,13 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.example.data.simple.SimpleGroup;
+//import java.util.logging.Logger;
 
 public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWritable, Text> {
     private final HashMap<String, String> taxi_zones = new HashMap<>();
     private final HashMap<String, String> payment_types = new HashMap<>();
+
+//    Logger log = Logger.getLogger(YellowTaxiMapper.class.getName());
 
     private String get_day_period(String hours_mins) {
         LocalTime pu_time = LocalTime.parse(hours_mins);
@@ -41,36 +44,36 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
 
     public void setup(Context context) throws IOException, InterruptedException {
-        System.out.println("Set up running");
+//        log.info("Set up running");
 
-//        URI[] cacheFiles = context.getCacheFiles();
-//        if (cacheFiles != null && cacheFiles.length > 0) {
-//
-//            try {
-//                FileSystem fs = FileSystem.get(context.getConfiguration());
-//                Path getFilePath = new Path(cacheFiles[0].toString());
-//
-////                String service_id_file_location = context.getConfiguration().get("taxi.zones.file.path");
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(getFilePath)));
-//
-//                String line;
-//                while ((line = reader.readLine()) != null) {
-//                    String[] data = line.split(",");
-//                    if (!data[0].equals("OBJECTID")) {
-//                        taxi_zones.put(data[4], data[3] + "," + data[5]);
-//                    }
-//                }
-//                System.out.println("Loaded in!");
-//                reader.close();
-//
-////        for (Map.Entry<String, String> t : taxi_zones.entrySet()) {
-////            System.out.println(t.getKey() + " " + t.getValue());
-////        }
-//
-//            } catch (Exception ex) {
-//                System.out.println(ex.getLocalizedMessage());
-//            }
-//        }
+        URI[] cacheFiles = context.getCacheFiles();
+        if (cacheFiles != null && cacheFiles.length > 0) {
+
+            try {
+                FileSystem fs = FileSystem.get(context.getConfiguration());
+                Path getFilePath = new Path(cacheFiles[0].toString());
+
+//                String service_id_file_location = context.getConfiguration().get("taxi.zones.file.path");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(getFilePath)));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split(",");
+                    if (!data[0].equals("OBJECTID")) {
+                        taxi_zones.put(data[4], data[3] + "," + data[5]);
+                    }
+                }
+                System.out.println("Loaded in!");
+                reader.close();
+
+            for (Map.Entry<String, String> t : taxi_zones.entrySet()) {
+                System.out.println(t.getKey() + " " + t.getValue());
+            }
+
+            } catch (Exception ex) {
+                System.out.println(ex.getLocalizedMessage());
+            }
+        }
 
 
 //        assertEquals(get_day_period("04:23"), "Late Night");
@@ -114,7 +117,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
         context.write(NullWritable.get(), new Text(csv_header));
 
-        System.out.println("Set up END");
+//        log.info("Set up END");
     }
 
     private String getValue(int col_idx, SimpleGroup value) {
@@ -144,8 +147,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
     @Override
     public void map(LongWritable key, SimpleGroup value, Context context)
             throws IOException, InterruptedException {
-        System.out.println("map start");
-
+//        log.info("map start");
         // High Traffic Period (rush hour[s]) start and stop times during day
         int HTP_AM_START = 5;
         int HTP_AM_END = 10;
@@ -154,22 +156,17 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         int errors = 0;
 
         SimpleGroup data = value;
-//        Text data = value;
-//        String[] data = value.toString().split(",");
         StringBuilder row_str = new StringBuilder();
 
-//        if (!data[1].toString().equals("VendorID")) {
 
         // Pick and drop off column processing
         String pu_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_PICKUP_DATETIME), data);
-//            String pu_datetime_ts = "1682054966000";
         row_str.append(getDateOnly(pu_datetime_ts)).append(",");
         String pu_time = getTimeOnly(pu_datetime_ts);
         row_str.append(pu_time).append(",");
 
 
         String do_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_DROPOFF_DATETIME), data);
-//            String do_datetime_ts = "1682054966000";
         row_str.append(getDateOnly(do_datetime_ts)).append(",");
         String do_time = getTimeOnly(do_datetime_ts);
         row_str.append(do_time).append(",");
@@ -193,8 +190,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         }
         row_str.append(htp_pm).append(",");
 
-
-        System.out.println("2");
 
         // Add period of day for the trip  Morning/Afternoon/Evening/Late Evening/Late Night
         row_str.append(get_day_period(pu_time)).append(",");
@@ -230,16 +225,17 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         }
 
         if (errors == 0) {
-            System.out.println(pu_loc_id);
-//            String[] area_borough = taxi_zones.get("1").split(",");
-//            String area = area_borough[0];
-//            String borough = area_borough[1];
+            String[] area_borough = taxi_zones.get(pu_loc_id).split(",");
+//            System.out.println("============");
+//            for (String d: area_borough)
+//                System.out.println(d);
+            String area = area_borough[0];
+            String borough = area_borough[1];
 
-//            if (!borough.equals("Manhattan"))
-//                errors += 1;
-//            else
-//                row_str.append(area).append(",");
-            row_str.append("HELLO").append(",");
+            if (!borough.equals("Manhattan"))
+                errors += 1;
+            else
+                row_str.append(area).append(",");
         }
 
 
@@ -253,10 +249,9 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         }
 
         if (errors == 0) {
-//            String[] area_borough = taxi_zones.get(do_loc_id).split(",");
-//            String area = area_borough[0];
-//            row_str.append(area).append(",");
-            row_str.append("HOWDY").append(",");
+            String[] area_borough = taxi_zones.get(do_loc_id).split(",");
+            String area = area_borough[0];
+            row_str.append(area).append(",");
         }
 
 
@@ -280,11 +275,9 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         }
 
 
-//         Dont add any rows which have serious errors / missing data
+        // Dont add any rows which have serious errors / missing data
         if (errors == 0)
             context.write(NullWritable.get(), new Text(row_str.toString()));
-//        context.write(NullWritable.get(), new Text("Running"));
 
-//        }
     }
 }

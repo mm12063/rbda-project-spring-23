@@ -1,16 +1,22 @@
 package taxi;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.parquet.hadoop.ParquetInputFormat;
 import org.apache.parquet.hadoop.example.GroupReadSupport;
 
 
+//import java.io.File;
+import java.io.File;
 import java.net.URI;
+//import java.nio.file.Files;
+//import java.nio.file.Paths;
 
 public class YellowTaxi {
 
@@ -29,42 +35,34 @@ public class YellowTaxi {
 //            System.err.println("Usage: taxi.YellowTaxi <input path> <input path> <output path>");
 //            System.exit(-1);
 //        }
-        System.out.println("Main start");
-
-        String DS_1_LOC = args[1];
-        String DS_2_DIR = args[2];
-
-        Configuration conf = new Configuration();
-//        conf.set("join.type","inner");
-//        conf.set("service.id.file.path", DS_1_LOC);
-        Job job = Job.getInstance(conf);
-        job.setJarByClass(YellowTaxi.class);
-        job.setJobName("YellowTaxi");
-        job.setNumReduceTasks(0);
-
-//        try {
-//            job.addCacheFile(new URI(DS_1_LOC));
-//        } catch (Exception e) {
-//            System.out.println("Couldnt add the file to cache");
-//            System.exit(1);
-//        }
-
-        System.out.println("Main 2");
-
-        ParquetInputFormat.setReadSupportClass(job, GroupReadSupport.class);
 
         int YEAR_ST = 2020;
         int YEAR_END = 2020;
         int MONTH_ST = 4;
         int MONTH_END = 4;
 
+        String DS_1_LOC = args[1];
+        String DS_2_DIR = args[2];
+
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf);
+        job.setJarByClass(YellowTaxi.class);
+        job.setJobName("YellowTaxi Parquet");
+        job.setNumReduceTasks(0);
+
+        try {
+            job.addCacheFile(new URI(DS_1_LOC));
+        } catch (Exception e) {
+            System.out.println("Couldnt add the file to cache");
+            System.exit(1);
+        }
+
+        ParquetInputFormat.setReadSupportClass(job, GroupReadSupport.class);
+
         String out_path_str = args[3];
+        FileUtils.deleteDirectory(new File(out_path_str));
         Path out_path = new Path(out_path_str);
 
-        //        FileUtils.deleteDirectory(new File(out_path_str));
-
-//        String csv_input = "/Users/mitch/Desktop/NYU/classes/rbda/rbda-project-spring-23/CSVs/2020/yellow_tripdata_2020-01-5.csv";
-//        MultipleInputs.addInputPath(job, new Path(csv_input), TextInputFormat.class, taxi.YellowTaxiMapper.class);
         System.out.println("Main 3");
 
         for (int year = YEAR_ST; year <= YEAR_END; year++) {
@@ -78,12 +76,8 @@ public class YellowTaxi {
 
         job.setOutputFormatClass(TextOutputFormat.class);
         TextOutputFormat.setOutputPath(job, out_path);
-
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-
-        System.out.println("Main 5");
-
         System.exit(job.waitForCompletion(true) ? 1 : 0);
     }
 }
