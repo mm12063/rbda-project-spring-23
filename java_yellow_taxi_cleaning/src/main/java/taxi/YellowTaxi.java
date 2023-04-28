@@ -66,6 +66,7 @@ public class YellowTaxi {
         for (int year = YEAR_ST; year <= YEAR_END; year++) {
             for (int month = MONTH_ST; month <= MONTH_END; month++) {
                 String input = DS_2_DIR + "/" + year + "/yellow_tripdata_" + year + "-" + leftZeroPad(month) + ".parquet";
+                System.out.println(input);
                 MultipleInputs.addInputPath(job, new Path(input), ParquetInputFormat.class, YellowTaxiMapper.class);
             }
         }

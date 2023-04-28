@@ -14,10 +14,14 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.example.data.simple.SimpleGroup;
+import java.util.logging.Logger;
 
 public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWritable, Text> {
     private final HashMap<String, String> taxi_zones = new HashMap<>();
     private final HashMap<String, String> payment_types = new HashMap<>();
+
+    Logger log = Logger.getLogger(YellowTaxiMapper.class.getName());
+
 
     private String get_day_period(String hours_mins) {
 
@@ -42,8 +46,8 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
     public void setup(Context context) throws IOException, InterruptedException {
         URI[] cacheFiles = context.getCacheFiles();
-        if (cacheFiles != null && cacheFiles.length > 0) {
 
+        if (cacheFiles != null && cacheFiles.length > 0) {
             try {
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 Path getFilePath = new Path(cacheFiles[0].toString());
@@ -60,14 +64,11 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
                 System.out.println("Loaded in!");
                 reader.close();
 
-//            for (Map.Entry<String, String> t : taxi_zones.entrySet()) {
-//                System.out.println(t.getKey() + " " + t.getValue());
-//            }
-
             } catch (Exception ex) {
                 System.out.println(ex.getLocalizedMessage());
             }
         }
+
 
         // Payment types
         payment_types.put("1", "Credit card");
@@ -169,7 +170,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
         // If passenger is 0, then just set to 1
         try {
-
             String pass_count = getValue(TaxiZonesMetaData.getColIdx(ColNames.PASSENGER_COUNT), value);
             if (pass_count.equals("0") || pass_count.equals("0.0") || pass_count.equals(""))
                 pass_count = "1.0";
@@ -180,52 +180,74 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
 
         // If distance is 0, then don't add the record at all (increment errors var)
-        String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), value);
-        if (trip_distance.equals("0") || trip_distance.equals("0.0") || trip_distance.equals(""))
-            errors += 1;
-        else
-            row_str.append(trip_distance).append(",");
+        try {
+            String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), value);
+            if (trip_distance.equals("0") || trip_distance.equals("0.0") || trip_distance.equals("")) {
+                errors += 1;
+//                System.out.println("Error: trip_distance " + trip_distance);
+            } else {
+                row_str.append(trip_distance).append(",");
+            }
+        } catch (RuntimeException e) {
+            System.out.println("Exception: trip_distance");
+            log.info(e.getMessage());
+        }
 
 
         // If the pu or do locations are outside of the range of location IDs, drop the whole row
         String pu_loc_id = getValue(TaxiZonesMetaData.getColIdx(ColNames.PU_LOCATION_ID), value);
         if (errors == 0) {
             int pu_loc_id_as_int = Integer.parseInt(pu_loc_id);
-            if (pu_loc_id_as_int < 1 || pu_loc_id_as_int > 263)
+            if (pu_loc_id_as_int < 1 || pu_loc_id_as_int > 263) {
                 errors += 1;
-            else
+//                System.out.println("Error: pu_loc_id");
+            } else {
                 row_str.append(pu_loc_id).append(",");
+            }
         }
 
-        if (errors == 0) {
-            String[] area_borough = taxi_zones.get(pu_loc_id).split(",");
-//            System.out.println("============");
-//            for (String d: area_borough)
-//                System.out.println(d);
-            String area = area_borough[0];
-            String borough = area_borough[1];
+        try {
+            if (errors == 0) {
+                String[] area_borough = taxi_zones.get(pu_loc_id).split(",");
+                String area = area_borough[0];
+                String borough = area_borough[1];
 
-            if (!borough.equals("Manhattan"))
-                errors += 1;
-            else
-                row_str.append(area).append(",");
+                if (!borough.equals("Manhattan")) {
+                    errors += 1;
+//                    System.out.println("Error: area_borough " + borough);
+                } else {
+                    row_str.append(area).append(",");
+                }
+            }
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            log.info(pu_loc_id +" "+ taxi_zones.get(pu_loc_id));
         }
 
 
         String do_loc_id = getValue(TaxiZonesMetaData.getColIdx(ColNames.DO_LOCATION_ID), value);
-        if (errors == 0) {
-            int do_loc_id_as_int = Integer.parseInt(do_loc_id);
-            if (do_loc_id_as_int < 1 || do_loc_id_as_int > 263)
-                errors += 1;
-            else
-                row_str.append(do_loc_id).append(",");
+        try {
+            if (errors == 0) {
+                int do_loc_id_as_int = Integer.parseInt(do_loc_id);
+                if (do_loc_id_as_int < 1 || do_loc_id_as_int > 263) {
+                    errors += 1;
+//                    System.out.println("Error: area_borough");
+                } else {
+                    row_str.append(do_loc_id).append(",");
+                }
+            }
+
+            if (errors == 0) {
+                String[] area_borough = taxi_zones.get(do_loc_id).split(",");
+                String area = area_borough[0];
+                row_str.append(area).append(",");
+            }
+        } catch (Exception e) {
+            log.info(e.getMessage());
+            log.info(do_loc_id +" "+ taxi_zones.get(do_loc_id));
         }
 
-        if (errors == 0) {
-            String[] area_borough = taxi_zones.get(do_loc_id).split(",");
-            String area = area_borough[0];
-            row_str.append(area).append(",");
-        }
+
 
 
         // If payment type isn't one of the types we expect (1-6), set it to 1  Credit Card (the most common type)
@@ -241,12 +263,15 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
         if (errors == 0) {
             String total_amount = getValue(TaxiZonesMetaData.getColIdx(ColNames.TOTAL_AMOUNT), value);
-            if (total_amount.equals("0") || total_amount.equals("0.0") || total_amount.equals(""))
+            if (total_amount.equals("0") || total_amount.equals("0.0") || total_amount.equals("")) {
                 errors += 1;
-            else
+//                System.out.println("Error: total_amount");
+            } else {
                 row_str.append(total_amount);
+            }
         }
 
+//        System.out.println(row_str);
 
         // Dont add any rows which have serious errors / missing data
         if (errors == 0)
