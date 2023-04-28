@@ -1,11 +1,15 @@
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.parquet.hadoop.ParquetInputFormat;
 import org.apache.parquet.hadoop.example.GroupReadSupport;
+
+import java.io.File;
 
 public class YellowTaxi {
 
@@ -20,13 +24,17 @@ public class YellowTaxi {
     }
 
     public static void main(String[] args) throws Exception {
-
-        if (args.length != 2) {
-            System.err.println("Usage: YellowTaxi <input path> <output path>");
+        if (args.length != 3) {
+            System.err.println("Usage: YellowTaxi <input path> <input path> <output path>");
             System.exit(-1);
         }
 
+        String DS_1_LOC = args[0];
+        String DS_2_DIR = args[1];
+
         Configuration conf = new Configuration();
+        conf.set("join.type","inner");
+        conf.set("service.id.file.path", DS_1_LOC);
         Job job = Job.getInstance(conf);
         job.setJarByClass(YellowTaxi.class);
         job.setJobName("Job Name: YellowTaxi");
@@ -38,17 +46,22 @@ public class YellowTaxi {
         int YEAR_END = 2021;
         int MONTH_ST = 1;
         int MONTH_END = 12;
-        String main_dir = args[0];
+
+        String out_path_str = args[2];
+        Path out_path = new Path(out_path_str);
+        FileUtils.deleteDirectory(new File(out_path_str));
+
+
+//        String csv_input = "/Users/mitch/Desktop/NYU/classes/rbda/rbda-project-spring-23/CSVs/2020/yellow_tripdata_2020-01-5.csv";
+//        MultipleInputs.addInputPath(job, new Path(csv_input), TextInputFormat.class, YellowTaxiMapper.class);
+
 
         for (int year = YEAR_ST; year <= YEAR_END; year++) {
             for (int month = MONTH_ST; month <= MONTH_END; month++) {
-                String input = main_dir + "/" + year + "/yellow_tripdata_" + year + "-" + leftZeroPad(month) + ".parquet";
+                String input = DS_2_DIR + "/" + year + "/yellow_tripdata_" + year + "-" + leftZeroPad(month) + ".parquet";
                 MultipleInputs.addInputPath(job, new Path(input), ParquetInputFormat.class, YellowTaxiMapper.class);
             }
         }
-
-        String out_path_str = args[1];
-        Path out_path = new Path(out_path_str);
 
         job.setOutputFormatClass(TextOutputFormat.class);
         TextOutputFormat.setOutputPath(job, out_path);

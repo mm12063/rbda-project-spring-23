@@ -1,4 +1,5 @@
-import java.io.IOException;
+import java.io.*;
+import java.time.LocalTime;
 import java.util.*;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -9,29 +10,70 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static junit.framework.Assert.assertEquals;
+
 public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWritable, Text> {
-    private final Map<String, Integer> ColNames = new HashMap<>();
+//public class YellowTaxiMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
+    private final HashMap<String, String> taxi_zones = new HashMap<>();
+    private final HashMap<String, String> payment_types = new HashMap<>();
+
+    private String get_day_period(String hours_mins) {
+        LocalTime pu_time = LocalTime.parse(hours_mins);
+        LocalTime morn_st = LocalTime.parse("06:00");
+        LocalTime morn_end = LocalTime.parse("12:00");
+        LocalTime eve_st = LocalTime.parse("18:00");
+        LocalTime eve_end = LocalTime.parse("21:00");
+        LocalTime late_eve_end = LocalTime.parse("23:59");
+
+        if (pu_time.isAfter(morn_st) && pu_time.isBefore(morn_end)) {
+            return "Morning";
+        } else if (pu_time.isAfter(morn_end) && pu_time.isBefore(eve_st)) {
+            return "Afternoon";
+        } else if (pu_time.isAfter(eve_st) && pu_time.isBefore(eve_end)) {
+            return "Evening";
+        } else if (pu_time.isAfter(eve_end) && pu_time.isBefore(late_eve_end)) {
+            return "Late Evening";
+        }
+        return "Late Night";
+    }
+
+
+
+
 
     public void setup(Context context) throws IOException, InterruptedException {
-        ColNames.put("VendorID", 0);
-        ColNames.put("tpep_pickup_datetime", 1);
-        ColNames.put("tpep_dropoff_datetime", 2);
-        ColNames.put("passenger_count", 3);
-        ColNames.put("trip_distance", 4);
-        ColNames.put("RatecodeID", 5);
-        ColNames.put("store_and_fwd_flag", 6);
-        ColNames.put("PULocationID", 7);
-        ColNames.put("DOLocationID", 8);
-        ColNames.put("payment_type", 9);
-        ColNames.put("fare_amount", 10);
-        ColNames.put("extra", 11);
-        ColNames.put("mta_tax", 12);
-        ColNames.put("tip_amount", 13);
-        ColNames.put("tolls_amount", 14);
-        ColNames.put("improvement_surcharge", 15);
-        ColNames.put("total_amount", 16);
-        ColNames.put("congestion_surcharge", 17);
-        ColNames.put("airport_fee", 18);
+        String service_id_file_location = context.getConfiguration().get("taxi.zones.file.path");
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(service_id_file_location)));
+
+//        assertEquals(get_day_period("04:23"), "Late Night");
+//        assertEquals(get_day_period("09:23"), "Morning");
+//        assertEquals(get_day_period("12:02"), "Afternoon");
+//        assertEquals(get_day_period("18:02"), "Evening");
+//        assertEquals(get_day_period("21:02"), "Late Evening");
+//        assertEquals(get_day_period("00:02"), "Late Night");
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] data = line.split(",");
+            if (!data[0].equals("OBJECTID")) {
+                taxi_zones.put(data[4], data[3] +","+ data[5]);
+            }
+        }
+
+//        for (Map.Entry<String, String> t : taxi_zones.entrySet()) {
+//            System.out.println(t.getKey() + " " + t.getValue());
+//        }
+
+
+        // Payment types
+        payment_types.put("1", "Credit card");
+        payment_types.put("2", "Cash");
+        payment_types.put("3", "No charge");
+        payment_types.put("4", "Dispute");
+        payment_types.put("5", "Unknown");
+        payment_types.put("6", "Voided trip");
+
 
         String csv_header = "pu_date" + "," +
                 "pu_time" + "," +
@@ -39,22 +81,25 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
                 "do_time" + "," +
                 "htp_am" + "," +
                 "htp_pm" + "," +
+                "trip_period" + "," +
                 "passenger_count" + "," +
                 "trip_distance" + "," +
                 "pu_loc_id" + "," +
+                "pu_taxi_zone" + "," +
                 "do_loc_id" + "," +
-                "payment_type" + "," +
+                "do_taxi_zone" + "," +
+                "payment_type_readable" + "," +
                 "total_cost";
 
         context.write(NullWritable.get(), new Text(csv_header));
     }
 
-    private int getCol(String col_name) {
-        return ColNames.get(col_name);
+    private String getValue(int col_idx, SimpleGroup value) {
+        return value.getValueToString(col_idx, 0);
     }
 
-    private String getValue(String col_name, SimpleGroup value){
-        return value.getValueToString(getCol(col_name), 0);
+    private String getValue(int col_idx, String[] value) {
+        return value[col_idx+1];
     }
 
     private String getDateOnly(String timestamp){
@@ -75,6 +120,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
     @Override
     public void map(LongWritable key, SimpleGroup value, Context context)
+//    public void map(LongWritable key, Text value, Context context)
             throws IOException, InterruptedException {
 
         // High Traffic Period (rush hour[s]) start and stop times during day
@@ -85,15 +131,24 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         int errors = 0;
 
         SimpleGroup data = value;
+//        Text data = value;
+//        String[] data = value.toString().split(",");
         StringBuilder row_str = new StringBuilder();
 
+//        if (!data[1].toString().equals("VendorID")) {
+
         // Pick and drop off column processing
-        String pu_datetime_ts = getValue("tpep_pickup_datetime", data);
+        String pu_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_PICKUP_DATETIME), data);
+//            String pu_datetime_ts = "1682054966000";
         row_str.append(getDateOnly(pu_datetime_ts)).append(",");
         String pu_time = getTimeOnly(pu_datetime_ts);
         row_str.append(pu_time).append(",");
 
-        String do_datetime_ts = getValue("tpep_dropoff_datetime", data);
+
+
+
+        String do_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_DROPOFF_DATETIME), data);
+//            String do_datetime_ts = "1682054966000";
         row_str.append(getDateOnly(do_datetime_ts)).append(",");
         String do_time = getTimeOnly(do_datetime_ts);
         row_str.append(do_time).append(",");
@@ -108,78 +163,110 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
                 (Integer.parseInt(do_hour) > HTP_AM_START) && (Integer.parseInt(do_hour) < HTP_AM_END)) {
             htp_am = "1";
         }
+        row_str.append(htp_am).append(",");
 
         String htp_pm = "0";
         if ((Integer.parseInt(pu_hour) > HTP_PM_START) && (Integer.parseInt(pu_hour) < HTP_PM_END) ||
                 (Integer.parseInt(do_hour) > HTP_PM_START) && (Integer.parseInt(do_hour) < HTP_PM_END)) {
             htp_pm = "1";
         }
-
-        row_str.append(htp_am).append(",");
         row_str.append(htp_pm).append(",");
 
 
 
+
+        // Add period of day for the trip – Morning/Afternoon/Evening/Late Evening/Late Night
+        row_str.append(get_day_period(pu_time)).append(",");
+
+
+
+
         // If passenger is 0, then just set to 1
-        try{
-            String pass_count = getValue("passenger_count", data);
-            if (pass_count.equals("0") || pass_count.equals("0.0") || pass_count.equals("")){
+        try {
+            String pass_count = getValue(TaxiZonesMetaData.getColIdx(ColNames.PASSENGER_COUNT), data);
+            if (pass_count.equals("0") || pass_count.equals("0.0") || pass_count.equals(""))
                 pass_count = "1";
-            }
             row_str.append(pass_count).append(",");
-        } catch(RuntimeException e){
+        } catch (RuntimeException e) {
             row_str.append("1").append(",");
         }
 
 
-
         // If distance is 0, then don't add the record at all (increment errors var)
-        String trip_distance = getValue("trip_distance", data);
-        if (trip_distance.equals("0") || trip_distance.equals("0.0") || trip_distance.equals("")){
+        String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), data);
+        if (trip_distance.equals("0") || trip_distance.equals("0.0") || trip_distance.equals(""))
             errors += 1;
-        } else {
+        else
             row_str.append(trip_distance).append(",");
-        }
+
 
 
         // If the pu or do locations are outside of the range of location IDs, drop the whole row
-        String pu_loc_id = getValue("PULocationID", data);
-        int pu_loc_id_as_int = Integer.parseInt(pu_loc_id);
-        if (pu_loc_id_as_int < 1 || pu_loc_id_as_int > 263){
-            errors += 1;
-        } else {
-            row_str.append(pu_loc_id).append(",");
+        String pu_loc_id = getValue(TaxiZonesMetaData.getColIdx(ColNames.PU_LOCATION_ID), data);
+        if (errors == 0) {
+            int pu_loc_id_as_int = Integer.parseInt(pu_loc_id);
+            if (pu_loc_id_as_int < 1 || pu_loc_id_as_int > 263)
+                errors += 1;
+            else
+                row_str.append(pu_loc_id).append(",");
         }
 
-        String do_loc_id = getValue("DOLocationID", data);
-        int do_loc_id_as_int = Integer.parseInt(do_loc_id);
-        if (do_loc_id_as_int < 1 || do_loc_id_as_int > 263){
-            errors += 1;
-        } else {
-            row_str.append(do_loc_id).append(",");
+        if (errors == 0) {
+            String[] area_borough = taxi_zones.get(pu_loc_id).split(",");
+            String area = area_borough[0];
+            String borough = area_borough[1];
+
+            if (!borough.equals("Manhattan"))
+                errors += 1;
+            else
+                row_str.append(area).append(",");
+        }
+
+
+
+
+        String do_loc_id = getValue(TaxiZonesMetaData.getColIdx(ColNames.DO_LOCATION_ID), data);
+        if (errors == 0) {
+            int do_loc_id_as_int = Integer.parseInt(do_loc_id);
+            if (do_loc_id_as_int < 1 || do_loc_id_as_int > 263)
+                errors += 1;
+            else
+                row_str.append(do_loc_id).append(",");
+        }
+
+        if (errors == 0) {
+            String[] area_borough = taxi_zones.get(do_loc_id).split(",");
+            String area = area_borough[0];
+            row_str.append(area).append(",");
         }
 
 
         // If payment type isn't one of the types we expect (1-6), set it to 1 – Credit Card (the most common type)
-        String payment_type = getValue("payment_type", data);
-        if (!payment_type.equals("1") && !payment_type.equals("2") &&
-                !payment_type.equals("3") && !payment_type.equals("4") &&
-                !payment_type.equals("5") && !payment_type.equals("6"))
-            payment_type = "1";
-        row_str.append(payment_type).append(",");
+        String payment_type = getValue(TaxiZonesMetaData.getColIdx(ColNames.PAYMENT_TYPE), data);
+        if (errors == 0) {
+            if (payment_types.containsKey(payment_type))
+                row_str.append(payment_types.get(payment_type)).append(",");
+            else
+                // Set default as "1" – Credit card
+                row_str.append(payment_types.get("1")).append(",");
+        }
 
 
-        String total_amount = getValue("total_amount", data);
-        if (total_amount.equals("0") || total_amount.equals("0.0") || total_amount.equals("")){
-            errors += 1;
-        } else {
-            row_str.append(total_amount);
+
+
+        if (errors == 0) {
+            String total_amount = getValue(TaxiZonesMetaData.getColIdx(ColNames.TOTAL_AMOUNT), data);
+            if (total_amount.equals("0") || total_amount.equals("0.0") || total_amount.equals(""))
+                errors += 1;
+            else
+                row_str.append(total_amount);
         }
 
 
         // Dont add any rows which have serious errors / missing data
-        if (errors == 0) {
+        if (errors == 0)
             context.write(NullWritable.get(), new Text(row_str.toString()));
-        }
+
+//        }
     }
 }

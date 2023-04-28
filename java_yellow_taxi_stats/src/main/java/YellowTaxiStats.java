@@ -27,6 +27,11 @@ public class YellowTaxiStats {
     }
 
     public static void main(String[] args) throws Exception {
+        // TODO Change this when moving to server
+//        if (args.length != 3) {
+//            System.err.println("Usage: YellowTaxi <input path> <output path> <output path>");
+//            System.exit(-1);
+//        }
 
         Configuration conf = new Configuration();
         conf.set("mapred.textoutputformat.separator", ",");
