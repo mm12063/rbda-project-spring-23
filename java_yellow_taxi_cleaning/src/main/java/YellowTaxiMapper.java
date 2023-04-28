@@ -42,9 +42,29 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
 
     public void setup(Context context) throws IOException, InterruptedException {
-        String service_id_file_location = context.getConfiguration().get("taxi.zones.file.path");
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(new FileInputStream(service_id_file_location)));
+
+//        try {
+//            String service_id_file_location = context.getConfiguration().get("taxi.zones.file.path");
+//            BufferedReader reader = new BufferedReader(
+//                    new InputStreamReader(new FileInputStream(service_id_file_location)));
+//
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                String[] data = line.split(",");
+//                if (!data[0].equals("OBJECTID")) {
+//                    taxi_zones.put(data[4], data[3] +","+ data[5]);
+//                }
+//            }
+//            System.out.println("Loaded in!");
+//            reader.close();
+//
+////        for (Map.Entry<String, String> t : taxi_zones.entrySet()) {
+////            System.out.println(t.getKey() + " " + t.getValue());
+////        }
+//
+//        } catch (Exception ex) {
+//            System.out.println(ex.getLocalizedMessage());
+//        }
 
 //        assertEquals(get_day_period("04:23"), "Late Night");
 //        assertEquals(get_day_period("09:23"), "Morning");
@@ -53,17 +73,12 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 //        assertEquals(get_day_period("21:02"), "Late Evening");
 //        assertEquals(get_day_period("00:02"), "Late Night");
 
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String[] data = line.split(",");
-            if (!data[0].equals("OBJECTID")) {
-                taxi_zones.put(data[4], data[3] +","+ data[5]);
-            }
-        }
 
-//        for (Map.Entry<String, String> t : taxi_zones.entrySet()) {
-//            System.out.println(t.getKey() + " " + t.getValue());
-//        }
+        taxi_zones.put("1", "test");
+        taxi_zones.put("2", "test");
+        taxi_zones.put("3", "test");
+        taxi_zones.put("4", "test");
+
 
 
         // Payment types
@@ -175,7 +190,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
 
 
-        // Add period of day for the trip – Morning/Afternoon/Evening/Late Evening/Late Night
+        // Add period of day for the trip  Morning/Afternoon/Evening/Late Evening/Late Night
         row_str.append(get_day_period(pu_time)).append(",");
 
 
@@ -212,6 +227,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         }
 
         if (errors == 0) {
+            System.out.println(pu_loc_id);
             String[] area_borough = taxi_zones.get(pu_loc_id).split(",");
             String area = area_borough[0];
             String borough = area_borough[1];
@@ -241,13 +257,13 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         }
 
 
-        // If payment type isn't one of the types we expect (1-6), set it to 1 – Credit Card (the most common type)
+        // If payment type isn't one of the types we expect (1-6), set it to 1  Credit Card (the most common type)
         String payment_type = getValue(TaxiZonesMetaData.getColIdx(ColNames.PAYMENT_TYPE), data);
         if (errors == 0) {
             if (payment_types.containsKey(payment_type))
                 row_str.append(payment_types.get(payment_type)).append(",");
             else
-                // Set default as "1" – Credit card
+                // Set default as "1" Credit card
                 row_str.append(payment_types.get("1")).append(",");
         }
 
