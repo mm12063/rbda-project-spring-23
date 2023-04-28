@@ -1,3 +1,5 @@
+package taxi;
+
 public class TaxiZonesMetaData {
     public static int getColIdx(ColNames col_name) {
         int colIdx;
