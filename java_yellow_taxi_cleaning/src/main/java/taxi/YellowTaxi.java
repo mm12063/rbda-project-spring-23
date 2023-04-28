@@ -53,16 +53,15 @@ public class YellowTaxi {
 
         ParquetInputFormat.setReadSupportClass(job, GroupReadSupport.class);
 
-        int YEAR_ST = 2015;
-        int YEAR_END = 2015;
-        int MONTH_ST = 1;
-        int MONTH_END = 1;
+        int YEAR_ST = 2020;
+        int YEAR_END = 2020;
+        int MONTH_ST = 4;
+        int MONTH_END = 4;
 
         String out_path_str = args[3];
         Path out_path = new Path(out_path_str);
 
         //        FileUtils.deleteDirectory(new File(out_path_str));
-
 
 //        String csv_input = "/Users/mitch/Desktop/NYU/classes/rbda/rbda-project-spring-23/CSVs/2020/yellow_tripdata_2020-01-5.csv";
 //        MultipleInputs.addInputPath(job, new Path(csv_input), TextInputFormat.class, taxi.YellowTaxiMapper.class);
@@ -82,8 +81,6 @@ public class YellowTaxi {
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
-
-
 
         System.out.println("Main 5");
 
