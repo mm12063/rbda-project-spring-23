@@ -14,15 +14,13 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.parquet.example.data.simple.SimpleGroup;
-//import java.util.logging.Logger;
 
 public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWritable, Text> {
     private final HashMap<String, String> taxi_zones = new HashMap<>();
     private final HashMap<String, String> payment_types = new HashMap<>();
 
-//    Logger log = Logger.getLogger(YellowTaxiMapper.class.getName());
-
     private String get_day_period(String hours_mins) {
+
         LocalTime pu_time = LocalTime.parse(hours_mins);
         LocalTime morn_st = LocalTime.parse("06:00");
         LocalTime morn_end = LocalTime.parse("12:00");
@@ -42,10 +40,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         return "Late Night";
     }
 
-
     public void setup(Context context) throws IOException, InterruptedException {
-//        log.info("Set up running");
-
         URI[] cacheFiles = context.getCacheFiles();
         if (cacheFiles != null && cacheFiles.length > 0) {
 
@@ -53,7 +48,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 Path getFilePath = new Path(cacheFiles[0].toString());
 
-//                String service_id_file_location = context.getConfiguration().get("taxi.zones.file.path");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(getFilePath)));
 
                 String line;
@@ -66,29 +60,14 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
                 System.out.println("Loaded in!");
                 reader.close();
 
-            for (Map.Entry<String, String> t : taxi_zones.entrySet()) {
-                System.out.println(t.getKey() + " " + t.getValue());
-            }
+//            for (Map.Entry<String, String> t : taxi_zones.entrySet()) {
+//                System.out.println(t.getKey() + " " + t.getValue());
+//            }
 
             } catch (Exception ex) {
                 System.out.println(ex.getLocalizedMessage());
             }
         }
-
-
-//        assertEquals(get_day_period("04:23"), "Late Night");
-//        assertEquals(get_day_period("09:23"), "Morning");
-//        assertEquals(get_day_period("12:02"), "Afternoon");
-//        assertEquals(get_day_period("18:02"), "Evening");
-//        assertEquals(get_day_period("21:02"), "Late Evening");
-//        assertEquals(get_day_period("00:02"), "Late Night");
-
-
-//        taxi_zones.put("1", "test");
-//        taxi_zones.put("2", "test");
-//        taxi_zones.put("3", "test");
-//        taxi_zones.put("4", "test");
-
 
         // Payment types
         payment_types.put("1", "Credit card");
@@ -97,7 +76,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         payment_types.put("4", "Dispute");
         payment_types.put("5", "Unknown");
         payment_types.put("6", "Voided trip");
-
 
         String csv_header = "pu_date" + "," +
                 "pu_time" + "," +
@@ -116,16 +94,10 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
                 "total_cost";
 
         context.write(NullWritable.get(), new Text(csv_header));
-
-//        log.info("Set up END");
     }
 
     private String getValue(int col_idx, SimpleGroup value) {
         return value.getValueToString(col_idx, 0);
-    }
-
-    private String getValue(int col_idx, String[] value) {
-        return value[col_idx + 1];
     }
 
     private String getDateOnly(String timestamp) {
@@ -147,7 +119,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
     @Override
     public void map(LongWritable key, SimpleGroup value, Context context)
             throws IOException, InterruptedException {
-//        log.info("map start");
+
         // High Traffic Period (rush hour[s]) start and stop times during day
         int HTP_AM_START = 5;
         int HTP_AM_END = 10;
@@ -155,18 +127,16 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         int HTP_PM_END = 19;
         int errors = 0;
 
-        SimpleGroup data = value;
         StringBuilder row_str = new StringBuilder();
 
-
         // Pick and drop off column processing
-        String pu_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_PICKUP_DATETIME), data);
+        String pu_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_PICKUP_DATETIME), value);
         row_str.append(getDateOnly(pu_datetime_ts)).append(",");
         String pu_time = getTimeOnly(pu_datetime_ts);
         row_str.append(pu_time).append(",");
 
 
-        String do_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_DROPOFF_DATETIME), data);
+        String do_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_DROPOFF_DATETIME), value);
         row_str.append(getDateOnly(do_datetime_ts)).append(",");
         String do_time = getTimeOnly(do_datetime_ts);
         row_str.append(do_time).append(",");
@@ -191,23 +161,26 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         row_str.append(htp_pm).append(",");
 
 
+
         // Add period of day for the trip  Morning/Afternoon/Evening/Late Evening/Late Night
         row_str.append(get_day_period(pu_time)).append(",");
 
 
+
         // If passenger is 0, then just set to 1
         try {
-            String pass_count = getValue(TaxiZonesMetaData.getColIdx(ColNames.PASSENGER_COUNT), data);
+
+            String pass_count = getValue(TaxiZonesMetaData.getColIdx(ColNames.PASSENGER_COUNT), value);
             if (pass_count.equals("0") || pass_count.equals("0.0") || pass_count.equals(""))
-                pass_count = "1";
+                pass_count = "1.0";
             row_str.append(pass_count).append(",");
         } catch (RuntimeException e) {
-            row_str.append("1").append(",");
+            row_str.append("1.0").append(",");
         }
 
 
         // If distance is 0, then don't add the record at all (increment errors var)
-        String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), data);
+        String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), value);
         if (trip_distance.equals("0") || trip_distance.equals("0.0") || trip_distance.equals(""))
             errors += 1;
         else
@@ -215,7 +188,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
 
         // If the pu or do locations are outside of the range of location IDs, drop the whole row
-        String pu_loc_id = getValue(TaxiZonesMetaData.getColIdx(ColNames.PU_LOCATION_ID), data);
+        String pu_loc_id = getValue(TaxiZonesMetaData.getColIdx(ColNames.PU_LOCATION_ID), value);
         if (errors == 0) {
             int pu_loc_id_as_int = Integer.parseInt(pu_loc_id);
             if (pu_loc_id_as_int < 1 || pu_loc_id_as_int > 263)
@@ -239,7 +212,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         }
 
 
-        String do_loc_id = getValue(TaxiZonesMetaData.getColIdx(ColNames.DO_LOCATION_ID), data);
+        String do_loc_id = getValue(TaxiZonesMetaData.getColIdx(ColNames.DO_LOCATION_ID), value);
         if (errors == 0) {
             int do_loc_id_as_int = Integer.parseInt(do_loc_id);
             if (do_loc_id_as_int < 1 || do_loc_id_as_int > 263)
@@ -256,7 +229,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
 
         // If payment type isn't one of the types we expect (1-6), set it to 1  Credit Card (the most common type)
-        String payment_type = getValue(TaxiZonesMetaData.getColIdx(ColNames.PAYMENT_TYPE), data);
+        String payment_type = getValue(TaxiZonesMetaData.getColIdx(ColNames.PAYMENT_TYPE), value);
         if (errors == 0) {
             if (payment_types.containsKey(payment_type))
                 row_str.append(payment_types.get(payment_type)).append(",");
@@ -267,7 +240,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
 
         if (errors == 0) {
-            String total_amount = getValue(TaxiZonesMetaData.getColIdx(ColNames.TOTAL_AMOUNT), data);
+            String total_amount = getValue(TaxiZonesMetaData.getColIdx(ColNames.TOTAL_AMOUNT), value);
             if (total_amount.equals("0") || total_amount.equals("0.0") || total_amount.equals(""))
                 errors += 1;
             else

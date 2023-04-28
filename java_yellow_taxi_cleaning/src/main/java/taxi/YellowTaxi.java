@@ -36,10 +36,10 @@ public class YellowTaxi {
 //            System.exit(-1);
 //        }
 
-        int YEAR_ST = 2020;
-        int YEAR_END = 2020;
-        int MONTH_ST = 4;
-        int MONTH_END = 4;
+        int YEAR_ST = 2015;
+        int YEAR_END = 2021;
+        int MONTH_ST = 1;
+        int MONTH_END = 12;
 
         String DS_1_LOC = args[1];
         String DS_2_DIR = args[2];
@@ -63,16 +63,12 @@ public class YellowTaxi {
         FileUtils.deleteDirectory(new File(out_path_str));
         Path out_path = new Path(out_path_str);
 
-        System.out.println("Main 3");
-
         for (int year = YEAR_ST; year <= YEAR_END; year++) {
             for (int month = MONTH_ST; month <= MONTH_END; month++) {
                 String input = DS_2_DIR + "/" + year + "/yellow_tripdata_" + year + "-" + leftZeroPad(month) + ".parquet";
                 MultipleInputs.addInputPath(job, new Path(input), ParquetInputFormat.class, YellowTaxiMapper.class);
             }
         }
-
-        System.out.println("Main 4");
 
         job.setOutputFormatClass(TextOutputFormat.class);
         TextOutputFormat.setOutputPath(job, out_path);
