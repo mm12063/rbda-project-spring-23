@@ -19,9 +19,7 @@ import java.util.logging.Logger;
 public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWritable, Text> {
     private final HashMap<String, String> taxi_zones = new HashMap<>();
     private final HashMap<String, String> payment_types = new HashMap<>();
-
-    Logger log = Logger.getLogger(YellowTaxiMapper.class.getName());
-
+    private final Logger log = Logger.getLogger(YellowTaxiMapper.class.getName());
 
     private String get_day_period(String hours_mins) {
 
