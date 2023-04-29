@@ -170,10 +170,11 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         try {
             String pass_count = getValue(TaxiZonesMetaData.getColIdx(ColNames.PASSENGER_COUNT), value);
             if (pass_count.equals("0") || pass_count.equals("0.0") || pass_count.equals(""))
-                pass_count = "1.0";
-            row_str.append(pass_count).append(",");
+                pass_count = "1";
+            int pass_count_int = (int)Double.parseDouble(pass_count);
+            row_str.append(pass_count_int).append(",");
         } catch (RuntimeException e) {
-            row_str.append("1.0").append(",");
+            row_str.append("1").append(",");
         }
 
 

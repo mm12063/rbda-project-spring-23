@@ -1,3 +1,5 @@
+package taxi;
+
 import java.io.IOException;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -13,7 +15,8 @@ public class YellowTaxiStatsMapper extends Mapper<LongWritable, Text, Text, Yell
         String[] values = value.toString().split(",");
         if (!values[0].equals("pu_date")) { // If it's the column name row, ignore it totally
             try {
-                double trip_dist = Double.parseDouble(values[ParquetData.getColIdx(ColNames.TRIP_DISTANCE)]);
+                double trip_dist = Double.parseDouble(values[CleanedCSVMetaData.getColIdx(ColNames.TRIP_DISTANCE)]);
+                System.out.println(trip_dist);
                 outTuple.setMin(trip_dist);
                 outTuple.setMax(trip_dist);
                 outTuple.setDistAvg(trip_dist);
@@ -25,7 +28,7 @@ public class YellowTaxiStatsMapper extends Mapper<LongWritable, Text, Text, Yell
             }
 
             try {
-                int pass_count = Integer.parseInt(values[ParquetData.getColIdx(ColNames.PASSENGER_COUNT)]);
+                int pass_count = Integer.parseInt(values[CleanedCSVMetaData.getColIdx(ColNames.PASSENGER_COUNT)]);
                 outTuple.setPassAvg(pass_count);
                 context.write(new Text("passenger_count"), outTuple);
             } catch (Exception e) {
@@ -34,7 +37,7 @@ public class YellowTaxiStatsMapper extends Mapper<LongWritable, Text, Text, Yell
             }
 
             try {
-                double total_cost = Double.parseDouble(values[ParquetData.getColIdx(ColNames.TOTAL_COST)]);
+                double total_cost = Double.parseDouble(values[CleanedCSVMetaData.getColIdx(ColNames.TOTAL_COST)]);
                 outTuple.setCostAvg(total_cost);
                 context.write(new Text("total_cost"), outTuple);
             } catch (Exception e) {

@@ -1,3 +1,5 @@
+package taxi;
+
 import java.io.IOException;
 import org.apache.hadoop.io.Writable;
 import java.io.DataOutput;

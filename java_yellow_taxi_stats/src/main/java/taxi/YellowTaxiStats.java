@@ -1,3 +1,6 @@
+package taxi;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -9,6 +12,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+import java.io.File;
 
 public class YellowTaxiStats {
 
@@ -27,30 +32,29 @@ public class YellowTaxiStats {
     }
 
     public static void main(String[] args) throws Exception {
-        // TODO Change this when moving to server
-//        if (args.length != 3) {
-//            System.err.println("Usage: YellowTaxi <input path> <output path> <output path>");
-//            System.exit(-1);
-//        }
 
         Configuration conf = new Configuration();
         conf.set("mapred.textoutputformat.separator", ",");
         Job job = Job.getInstance(conf);
         job.setJarByClass(YellowTaxiStats.class);
-        job.setJobName("Job Name: YellowTaxiStats");
+        job.setJobName("YellowTaxiStats");
         job.setNumReduceTasks(1);
 
         int MAX_FILES = 10; // Just a subset of the files as dataproc kept crashing under the strain of all 103 files
-        String main_dir = args[1];
+//        String main_dir = args[1];
 
-        for (int file_num = 0; file_num <= MAX_FILES; file_num++) {
-            String input = main_dir + "/part-m-" + leftZeroPad(file_num);
-            MultipleInputs.addInputPath(job, new Path(input), TextInputFormat.class, YellowTaxiStatsMapper.class);
-        }
+//        for (int file_num = 0; file_num <= MAX_FILES; file_num++) {
+//            String input = main_dir + "/part-m-" + leftZeroPad(file_num);
+//            MultipleInputs.addInputPath(job, new Path(input), TextInputFormat.class, YellowTaxiStatsMapper.class);
+//        }
+
+        String input_file = args[1];
+        MultipleInputs.addInputPath(job, new Path(input_file), TextInputFormat.class, YellowTaxiStatsMapper.class);
 
         String out_path_str = args[2];
         Path out_path = new Path(out_path_str);
-//        job.setCombinerClass(YellowTaxiStatsReducer.class);
+        FileUtils.deleteDirectory(new File(out_path_str));
+//        job.setCombinerClass(taxi.YellowTaxiStatsReducer.class);
         job.setReducerClass(YellowTaxiStatsReducer.class);
         job.setOutputFormatClass(TextOutputFormat.class);
         TextOutputFormat.setOutputPath(job, out_path);
@@ -59,46 +63,46 @@ public class YellowTaxiStats {
         job.waitForCompletion(true);
 
 
-        // Job
-        // Count the number of times passengers are picked up at certain location id
-        String counter_out_path_str = args[3];
-        Path counter_out_path = new Path(counter_out_path_str);
-        Configuration conf_counter = new Configuration();
-        conf_counter.set("mapred.textoutputformat.separator", ",");
-        Job job_counter = Job.getInstance(conf_counter);
-        job_counter.setJarByClass(YellowTaxiStats.class);
-        job_counter.setJobName("Job Name: YellowTaxiStatsCounter");
-        job_counter.setNumReduceTasks(1);
-
-        for (int file_num = 0; file_num <= MAX_FILES; file_num++) {
-            String input = main_dir + "/part-m-" + leftZeroPad(file_num);
-            MultipleInputs.addInputPath(job_counter, new Path(input), TextInputFormat.class, YellowTaxiStatsCountMapper.class);
-        }
-
-        job_counter.setCombinerClass(YellowTaxiStatsCounterReducer.class);
-        job_counter.setReducerClass(YellowTaxiStatsCounterReducer.class);
-        job_counter.setOutputFormatClass(TextOutputFormat.class);
-        TextOutputFormat.setOutputPath(job_counter, counter_out_path);
-        job_counter.setOutputKeyClass(Text.class);
-        job_counter.setOutputValueClass(IntWritable.class);
-        job_counter.waitForCompletion(true);
-
-
-        // Job
-        // Return the top 10 pick up locations
-        Configuration conf_top_10 = new Configuration();
-        conf_top_10.set("mapred.textoutputformat.separator", ",");
-        Job job_top_10 = Job.getInstance(conf_top_10, "YellowTaxiStatsTop10 count");
-        job_top_10.setJarByClass(YellowTaxiStats.class);
-        job_top_10.setMapperClass(YellowTaxiStatsTop10Mapper.class);
-        job_top_10.setReducerClass(YellowTaxiStatsTop10Reducer.class);
-        job_top_10.setNumReduceTasks(1);
-        job_top_10.setOutputKeyClass(NullWritable.class);
-        job_top_10.setOutputValueClass(Text.class);
-        // Use the output file from the previous job as the input to this job
-        FileInputFormat.addInputPath(job_top_10, new Path(args[3]));
-        FileOutputFormat.setOutputPath(job_top_10, new Path(args[3]+"_top10"));
-        job_top_10.waitForCompletion(true);
+//        // Job
+//        // Count the number of times passengers are picked up at certain location id
+//        String counter_out_path_str = args[3];
+//        Path counter_out_path = new Path(counter_out_path_str);
+//        Configuration conf_counter = new Configuration();
+//        conf_counter.set("mapred.textoutputformat.separator", ",");
+//        Job job_counter = Job.getInstance(conf_counter);
+//        job_counter.setJarByClass(YellowTaxiStats.class);
+//        job_counter.setJobName("Job Name: YellowTaxiStatsCounter");
+//        job_counter.setNumReduceTasks(1);
+//
+//        for (int file_num = 0; file_num <= MAX_FILES; file_num++) {
+//            String input = main_dir + "/part-m-" + leftZeroPad(file_num);
+//            MultipleInputs.addInputPath(job_counter, new Path(input), TextInputFormat.class, YellowTaxiStatsCountMapper.class);
+//        }
+//
+//        job_counter.setCombinerClass(YellowTaxiStatsCounterReducer.class);
+//        job_counter.setReducerClass(YellowTaxiStatsCounterReducer.class);
+//        job_counter.setOutputFormatClass(TextOutputFormat.class);
+//        TextOutputFormat.setOutputPath(job_counter, counter_out_path);
+//        job_counter.setOutputKeyClass(Text.class);
+//        job_counter.setOutputValueClass(IntWritable.class);
+//        job_counter.waitForCompletion(true);
+//
+//
+//        // Job
+//        // Return the top 10 pick up locations
+//        Configuration conf_top_10 = new Configuration();
+//        conf_top_10.set("mapred.textoutputformat.separator", ",");
+//        Job job_top_10 = Job.getInstance(conf_top_10, "YellowTaxiStatsTop10 count");
+//        job_top_10.setJarByClass(YellowTaxiStats.class);
+//        job_top_10.setMapperClass(YellowTaxiStatsTop10Mapper.class);
+//        job_top_10.setReducerClass(YellowTaxiStatsTop10Reducer.class);
+//        job_top_10.setNumReduceTasks(1);
+//        job_top_10.setOutputKeyClass(NullWritable.class);
+//        job_top_10.setOutputValueClass(Text.class);
+//        // Use the output file from the previous job as the input to this job
+//        FileInputFormat.addInputPath(job_top_10, new Path(args[3]));
+//        FileOutputFormat.setOutputPath(job_top_10, new Path(args[3]+"_top10"));
+//        job_top_10.waitForCompletion(true);
 
     }
 }
