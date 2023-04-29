@@ -1,0 +1,22 @@
+pu_date,pu_time,do_date,do_time,htp_am,htp_pm,trip_period,passenger_count,trip_distance,pu_loc_id,pu_taxi_zone,do_loc_id,do_taxi_zone,payment_type_readable,total_cost
+04-01-2020,00:41,04-01-2020,01:01,0,0,Late Night,1.0,1.2,41,Central Harlem,24,Bloomingdale,Cash,6.8
+04-01-2020,00:00,04-01-2020,00:09,0,0,Late Night,1.0,2.8,237,Upper East Side South,137,Kips Bay,Credit card,14.8
+04-01-2020,00:24,04-01-2020,00:34,0,0,Late Night,1,2.6,68,East Chelsea,142,Lincoln Square East,Credit card,14.8
+04-01-2020,00:13,04-01-2020,00:18,0,0,Late Night,1.0,1.44,263,Yorkville West,74,East Harlem North,Credit card,13.3
+04-01-2020,00:24,04-01-2020,00:33,0,0,Late Night,1.0,2.93,75,East Harlem South,170,Murray Hill,Cash,14.3
+04-01-2020,00:56,04-01-2020,01:09,0,0,Late Night,1.0,6.86,141,Lenox Hill West,243,Washington Heights North,Credit card,28.56
+04-01-2020,00:06,04-01-2020,00:14,0,0,Late Night,1.0,1.19,137,Kips Bay,68,East Chelsea,Cash,10.8
+04-01-2020,00:50,04-01-2020,01:08,0,0,Late Night,1.0,11.3,229,Sutton Place/Turtle Bay North,185,Pelham Parkway,Cash,35.3
+04-01-2020,00:07,04-01-2020,00:18,0,0,Late Night,1.0,3.68,140,Lenox Hill East,226,Sunnyside,Credit card,20.16
+04-01-2020,00:37,04-01-2020,00:46,0,0,Late Night,1.0,1.4,249,West Village,4,Alphabet City,Credit card,13.8
+04-01-2020,00:19,04-01-2020,00:22,0,0,Late Night,3.0,0.55,236,Upper East Side North,263,Yorkville West,Cash,7.8
+04-01-2020,00:13,04-01-2020,00:18,0,0,Late Night,3.0,0.85,68,East Chelsea,246,West Chelsea/Hudson Yards,Cash,9.8
+04-01-2020,00:34,04-01-2020,01:04,0,0,Late Night,3.0,7.32,48,Clinton East,223,Steinway,Cash,28.3
+04-01-2020,00:03,04-01-2020,00:12,0,0,Late Night,1.0,4.37,75,East Harlem South,224,Stuy Town/Peter Cooper Village,Dispute,-18.3
+04-01-2020,00:03,04-01-2020,00:12,0,0,Late Night,1.0,4.37,75,East Harlem South,224,Stuy Town/Peter Cooper Village,Cash,18.3
+04-01-2020,00:26,04-01-2020,00:37,0,0,Late Night,1.0,4.55,137,Kips Bay,74,East Harlem North,Dispute,-17.3
+04-01-2020,00:26,04-01-2020,00:37,0,0,Late Night,1.0,4.55,137,Kips Bay,74,East Harlem North,Cash,17.3
+04-01-2020,00:20,04-01-2020,00:45,0,0,Late Night,1.0,9.9,137,Kips Bay,61,Crown Heights North,Credit card,35.3
+04-01-2020,00:27,04-01-2020,00:38,0,0,Late Night,1.0,3.7,161,Midtown Center,4,Alphabet City,Credit card,17.3
+04-01-2020,00:50,04-01-2020,00:57,0,0,Late Night,1.0,1.39,141,Lenox Hill West,142,Lincoln Square East,Credit card,12.3
+04-01-2020,00:56,04-01-2020,01:06,0,0,Late Night,1.0,3.7,137,Kips Bay,66,DUMBO/Vinegar Hill,Cash,16.3
