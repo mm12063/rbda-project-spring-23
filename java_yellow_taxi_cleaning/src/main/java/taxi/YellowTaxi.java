@@ -42,7 +42,7 @@ public class YellowTaxi {
         int MONTH_END = 12;
 
         File f = new File("./flag_file.txt");
-        if(f.exists() && !f.isDirectory()) {
+        if(f.exists()) {
             YEAR_ST = 2020;
             YEAR_END = 2020;
             MONTH_ST = 4;
