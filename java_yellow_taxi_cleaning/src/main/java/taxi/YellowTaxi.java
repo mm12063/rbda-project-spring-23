@@ -36,11 +36,18 @@ public class YellowTaxi {
 //            System.exit(-1);
 //        }
 
-
         int YEAR_ST = 2015;
         int YEAR_END = 2021;
         int MONTH_ST = 1;
         int MONTH_END = 12;
+
+        File f = new File("./flag_file.txt");
+        if(f.exists() && !f.isDirectory()) {
+            YEAR_ST = 2020;
+            YEAR_END = 2020;
+            MONTH_ST = 4;
+            MONTH_END = 4;
+        }
 
         String DS_1_LOC = args[1];
         String DS_2_DIR = args[2];
