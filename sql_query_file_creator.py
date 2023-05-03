@@ -25,17 +25,19 @@ MONTH_END = 2
 # file.close()
 
 
-
-output_file = f"./{MAIN_DIR}/rush_hour.sql"
+FILE_NAME = "rush_hour"
+output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
 if os.path.exists(output_file):
     os.remove(output_file)
 
 with open(output_file, "a") as file:
     for year in range(YEAR_START, YEAR_END+1):
         for month in range(MONTH_START, MONTH_END+1):
-            command = f"SELECT COUNT(*) as {year}_{month}_htp FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1 OR htp_pm = 1; \n"
+            command = f"SELECT COUNT(*) as htp_{year}_{month} FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1 OR htp_pm = 1; \n"
             file.write(command)
 file.close()
+
+print(f"presto --catalog hive --schema default --file sql_files/{FILE_NAME}.sql > sql_output/{FILE_NAME}_output.txt")
 
 
 
