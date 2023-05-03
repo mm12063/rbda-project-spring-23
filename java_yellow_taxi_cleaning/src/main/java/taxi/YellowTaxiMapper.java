@@ -221,7 +221,8 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         if (errors == 0) {
             try {
                 String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), value);
-                if (trip_distance.equals("0") || trip_distance.equals("0.0") || trip_distance.equals("")) {
+                double trip_distance_d = Double.parseDouble(trip_distance);
+                if (trip_distance_d <= 0 || trip_distance.equals("")) {
                     errors += 1;
                 } else {
                     row_str.append(trip_distance).append(",");
@@ -297,9 +298,12 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
 
         if (errors == 0) {
+            String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), value);
+            double trip_distance_d = Double.parseDouble(trip_distance);
             String total_amount = getValue(TaxiZonesMetaData.getColIdx(ColNames.TOTAL_AMOUNT), value);
             double total_amount_d = Double.parseDouble(total_amount);
-            if (total_amount_d <= 0 || total_amount.equals("") || total_amount_d > 500) {
+            if (total_amount_d <= 0 || total_amount.equals("") || total_amount_d > 500
+                    || (trip_distance_d < 1 && total_amount_d > 100)) {
                 errors += 1;
             } else {
                 row_str.append(total_amount);
