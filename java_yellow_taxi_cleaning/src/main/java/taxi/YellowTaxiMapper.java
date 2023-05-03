@@ -59,7 +59,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
                         taxi_zones.put(data[4], data[3] + "," + data[5]);
                     }
                 }
-                System.out.println("Loaded in!");
                 reader.close();
 
             } catch (Exception ex) {
@@ -76,9 +75,14 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         payment_types.put("5", "Unknown");
         payment_types.put("6", "Voided trip");
 
-        String csv_header = "pu_date" + "," +
+        String csv_header =
+                "pu_month" + "," +
+                "pu_day" + "," +
+                "pu_year" + "," +
                 "pu_time" + "," +
-                "do_date" + "," +
+                "do_month" + "," +
+                "do_day" + "," +
+                "do_year" + "," +
                 "do_time" + "," +
                 "htp_am" + "," +
                 "htp_pm" + "," +
@@ -115,6 +119,15 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         return f.format(date_only);
     }
 
+    private String splitDate(String full_date) {
+        StringBuilder row_str = new StringBuilder();
+        String[] date_parts = full_date.split("-");
+        row_str.append(date_parts[0]).append(","); // Month
+        row_str.append(date_parts[1]).append(","); // Day
+        row_str.append(date_parts[2]).append(","); // Year
+        return row_str.toString();
+    }
+
     @Override
     public void map(LongWritable key, SimpleGroup value, Context context)
             throws IOException, InterruptedException {
@@ -128,15 +141,17 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
         StringBuilder row_str = new StringBuilder();
 
-        // Pick and drop off column processing
+        // Pick up date time
         String pu_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_PICKUP_DATETIME), value);
-        row_str.append(getDateOnly(pu_datetime_ts)).append(",");
+        String pu_full_date = getDateOnly(pu_datetime_ts);
+        row_str.append(splitDate(pu_full_date));
         String pu_time = getTimeOnly(pu_datetime_ts);
         row_str.append(pu_time).append(",");
 
-
+        // Drop off date time
         String do_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_DROPOFF_DATETIME), value);
-        row_str.append(getDateOnly(do_datetime_ts)).append(",");
+        String do_full_date = getDateOnly(do_datetime_ts);
+        row_str.append(splitDate(do_full_date));
         String do_time = getTimeOnly(do_datetime_ts);
         row_str.append(do_time).append(",");
 
@@ -183,7 +198,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
             String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), value);
             if (trip_distance.equals("0") || trip_distance.equals("0.0") || trip_distance.equals("")) {
                 errors += 1;
-//                System.out.println("Error: trip_distance " + trip_distance);
             } else {
                 row_str.append(trip_distance).append(",");
             }
@@ -199,7 +213,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
             int pu_loc_id_as_int = Integer.parseInt(pu_loc_id);
             if (pu_loc_id_as_int < 1 || pu_loc_id_as_int > 263) {
                 errors += 1;
-//                System.out.println("Error: pu_loc_id");
             } else {
                 row_str.append(pu_loc_id).append(",");
             }
@@ -213,7 +226,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
                 if (!borough.equals("Manhattan")) {
                     errors += 1;
-//                    System.out.println("Error: area_borough " + borough);
                 } else {
                     row_str.append(area).append(",");
                 }
@@ -230,7 +242,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
                 int do_loc_id_as_int = Integer.parseInt(do_loc_id);
                 if (do_loc_id_as_int < 1 || do_loc_id_as_int > 263) {
                     errors += 1;
-//                    System.out.println("Error: area_borough");
                 } else {
                     row_str.append(do_loc_id).append(",");
                 }
@@ -245,7 +256,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
             log.info(e.getMessage());
             log.info(do_loc_id +" "+ taxi_zones.get(do_loc_id));
         }
-
 
 
 
@@ -264,17 +274,14 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
             String total_amount = getValue(TaxiZonesMetaData.getColIdx(ColNames.TOTAL_AMOUNT), value);
             if (total_amount.equals("0") || total_amount.equals("0.0") || total_amount.equals("")) {
                 errors += 1;
-//                System.out.println("Error: total_amount");
             } else {
                 row_str.append(total_amount);
             }
         }
 
-//        System.out.println(row_str);
 
         // Dont add any rows which have serious errors / missing data
         if (errors == 0)
             context.write(NullWritable.get(), new Text(row_str.toString()));
-
     }
 }

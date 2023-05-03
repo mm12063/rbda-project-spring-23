@@ -36,6 +36,7 @@ public class YellowTaxi {
 //            System.exit(-1);
 //        }
 
+
         int YEAR_ST = 2015;
         int YEAR_END = 2021;
         int MONTH_ST = 1;
@@ -53,7 +54,7 @@ public class YellowTaxi {
         try {
             job.addCacheFile(new URI(DS_1_LOC));
         } catch (Exception e) {
-            System.out.println("Couldnt add the file to cache");
+            System.out.println("Couldn't add the file to cache");
             System.exit(1);
         }
 
