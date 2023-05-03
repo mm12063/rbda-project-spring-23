@@ -1,0 +1,10 @@
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020 AND pu_month = 3
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020 AND pu_month = 4
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020 AND pu_month = 5
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020  AND pu_month = 11 
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020  AND pu_month = 12 
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 1 
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 2 
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 3
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 4 
+SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 5 

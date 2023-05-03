@@ -6,10 +6,10 @@ MAIN_DIR = 'sql_files'
 if not os.path.exists(MAIN_DIR):
     os.mkdir(MAIN_DIR)
 
-YEAR_START = 2015
-YEAR_END = 2021
-MONTH_START = 1
-MONTH_END = 12
+# YEAR_START = 2015
+# YEAR_END = 2021
+# MONTH_START = 1
+# MONTH_END = 12
 
 # output_file = f"./{MAIN_DIR}/seasons.sql"
 # if os.path.exists(output_file):
@@ -25,7 +25,29 @@ MONTH_END = 12
 # file.close()
 
 
-FILE_NAME = "rush_hour"
+# FILE_NAME = "rush_hour"
+# output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
+# if os.path.exists(output_file):
+#     os.remove(output_file)
+#
+# with open(output_file, "a") as file:
+#     for year in range(YEAR_START, YEAR_END+1):
+#         for month in range(MONTH_START, MONTH_END+1):
+#             command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1 OR htp_pm = 1; \n"
+#             file.write(command)
+# file.close()
+
+
+FILE_NAME = "covid_waves"
+
+YEAR_START = 2020
+YEAR_END = 2020
+MONTH_START = 3
+MONTH_END = 5
+
+# March to May 20
+# Nov to May 21
+
 output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
 if os.path.exists(output_file):
     os.remove(output_file)
@@ -33,9 +55,21 @@ if os.path.exists(output_file):
 with open(output_file, "a") as file:
     for year in range(YEAR_START, YEAR_END+1):
         for month in range(MONTH_START, MONTH_END+1):
-            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1 OR htp_pm = 1; \n"
+            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month}\n"
             file.write(command)
+
+    command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020  AND pu_month = 11 \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020  AND pu_month = 12 \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 1 \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 2 \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 3\n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 4 \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 5 \n"
+    file.write(command)
+
 file.close()
+
+
 
 print(f"presto --catalog hive --schema default --file sql_files/{FILE_NAME}.sql > sql_output/{FILE_NAME}_output.txt")
 
