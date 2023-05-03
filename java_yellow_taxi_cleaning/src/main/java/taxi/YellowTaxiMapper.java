@@ -144,66 +144,92 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         // Pick up date time
         String pu_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_PICKUP_DATETIME), value);
         String pu_full_date = getDateOnly(pu_datetime_ts);
-        row_str.append(splitDate(pu_full_date));
-        String pu_time = getTimeOnly(pu_datetime_ts);
-        row_str.append(pu_time).append(",");
+        String pu_time = "";
+        String do_time = "";
+
+        String[] date_parts = pu_full_date.split("-");
+        int year = Integer.parseInt(date_parts[2]);
+        if (year < 2015 || year > 2021)
+            errors += 1;
+
+        if (errors == 0) {
+            row_str.append(splitDate(pu_full_date));
+            pu_time = getTimeOnly(pu_datetime_ts);
+            row_str.append(pu_time).append(",");
+        }
 
         // Drop off date time
-        String do_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_DROPOFF_DATETIME), value);
-        String do_full_date = getDateOnly(do_datetime_ts);
-        row_str.append(splitDate(do_full_date));
-        String do_time = getTimeOnly(do_datetime_ts);
-        row_str.append(do_time).append(",");
+        if (errors == 0) {
+            String do_datetime_ts = getValue(TaxiZonesMetaData.getColIdx(ColNames.TPEP_DROPOFF_DATETIME), value);
+            String do_full_date = getDateOnly(do_datetime_ts);
+
+            date_parts = do_full_date.split("-");
+            year = Integer.parseInt(date_parts[2]);
+            if (year < 2015 || year > 2021)
+                errors += 1;
+
+            row_str.append(splitDate(do_full_date));
+            do_time = getTimeOnly(do_datetime_ts);
+            row_str.append(do_time).append(",");
+        }
 
 
         // htp_am and htp_pm
-        String pu_hour = pu_time.substring(0, pu_time.indexOf(":"));
-        String do_hour = do_time.substring(0, do_time.indexOf(":"));
+        if (errors == 0) {
+            String pu_hour = pu_time.substring(0, pu_time.indexOf(":"));
+            String do_hour = do_time.substring(0, do_time.indexOf(":"));
 
-        String htp_am = "0";
-        if ((Integer.parseInt(pu_hour) > HTP_AM_START) && (Integer.parseInt(pu_hour) < HTP_AM_END) ||
-                (Integer.parseInt(do_hour) > HTP_AM_START) && (Integer.parseInt(do_hour) < HTP_AM_END)) {
-            htp_am = "1";
-        }
-        row_str.append(htp_am).append(",");
+            String htp_am = "0";
+            if ((Integer.parseInt(pu_hour) > HTP_AM_START) && (Integer.parseInt(pu_hour) < HTP_AM_END) ||
+                    (Integer.parseInt(do_hour) > HTP_AM_START) && (Integer.parseInt(do_hour) < HTP_AM_END)) {
+                htp_am = "1";
+            }
+            row_str.append(htp_am).append(",");
 
-        String htp_pm = "0";
-        if ((Integer.parseInt(pu_hour) > HTP_PM_START) && (Integer.parseInt(pu_hour) < HTP_PM_END) ||
-                (Integer.parseInt(do_hour) > HTP_PM_START) && (Integer.parseInt(do_hour) < HTP_PM_END)) {
-            htp_pm = "1";
+            String htp_pm = "0";
+            if ((Integer.parseInt(pu_hour) > HTP_PM_START) && (Integer.parseInt(pu_hour) < HTP_PM_END) ||
+                    (Integer.parseInt(do_hour) > HTP_PM_START) && (Integer.parseInt(do_hour) < HTP_PM_END)) {
+                htp_pm = "1";
+            }
+            row_str.append(htp_pm).append(",");
         }
-        row_str.append(htp_pm).append(",");
 
 
 
         // Add period of day for the trip  Morning/Afternoon/Evening/Late Evening/Late Night
-        row_str.append(get_day_period(pu_time)).append(",");
+        if (errors == 0) {
+            row_str.append(get_day_period(pu_time)).append(",");
+        }
 
 
 
         // If passenger is 0, then just set to 1
-        try {
-            String pass_count = getValue(TaxiZonesMetaData.getColIdx(ColNames.PASSENGER_COUNT), value);
-            if (pass_count.equals("0") || pass_count.equals("0.0") || pass_count.equals(""))
-                pass_count = "1";
-            int pass_count_int = (int)Double.parseDouble(pass_count);
-            row_str.append(pass_count_int).append(",");
-        } catch (RuntimeException e) {
-            row_str.append("1").append(",");
+        if (errors == 0) {
+            try {
+                String pass_count = getValue(TaxiZonesMetaData.getColIdx(ColNames.PASSENGER_COUNT), value);
+                if (pass_count.equals("0") || pass_count.equals("0.0") || pass_count.equals(""))
+                    pass_count = "1";
+                int pass_count_int = (int) Double.parseDouble(pass_count);
+                row_str.append(pass_count_int).append(",");
+            } catch (RuntimeException e) {
+                row_str.append("1").append(",");
+            }
         }
 
 
         // If distance is 0, then don't add the record at all (increment errors var)
-        try {
-            String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), value);
-            if (trip_distance.equals("0") || trip_distance.equals("0.0") || trip_distance.equals("")) {
-                errors += 1;
-            } else {
-                row_str.append(trip_distance).append(",");
+        if (errors == 0) {
+            try {
+                String trip_distance = getValue(TaxiZonesMetaData.getColIdx(ColNames.TRIP_DISTANCE), value);
+                if (trip_distance.equals("0") || trip_distance.equals("0.0") || trip_distance.equals("")) {
+                    errors += 1;
+                } else {
+                    row_str.append(trip_distance).append(",");
+                }
+            } catch (RuntimeException e) {
+                System.out.println("Exception: trip_distance");
+                log.info(e.getMessage());
             }
-        } catch (RuntimeException e) {
-            System.out.println("Exception: trip_distance");
-            log.info(e.getMessage());
         }
 
 
