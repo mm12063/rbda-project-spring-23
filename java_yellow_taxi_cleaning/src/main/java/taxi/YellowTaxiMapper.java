@@ -299,7 +299,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
         if (errors == 0) {
             String total_amount = getValue(TaxiZonesMetaData.getColIdx(ColNames.TOTAL_AMOUNT), value);
             double total_amount_d = Double.parseDouble(total_amount);
-            if (total_amount_d <= 0 || total_amount.equals("") || total_amount_d > 1500) {
+            if (total_amount_d <= 0 || total_amount.equals("") || total_amount_d > 200) {
                 errors += 1;
             } else {
                 row_str.append(total_amount);
