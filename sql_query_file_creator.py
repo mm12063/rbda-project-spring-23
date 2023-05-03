@@ -55,16 +55,16 @@ if os.path.exists(output_file):
 with open(output_file, "a") as file:
     for year in range(YEAR_START, YEAR_END+1):
         for month in range(MONTH_START, MONTH_END+1):
-            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month}\n"
+            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month}; \n"
             file.write(command)
 
-    command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020  AND pu_month = 11 \n"
-    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020  AND pu_month = 12 \n"
-    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 1 \n"
-    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 2 \n"
-    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 3\n"
-    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 4 \n"
-    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 5 \n"
+    command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020  AND pu_month = 11; \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2020  AND pu_month = 12; \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 1; \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 2; \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 3; \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 4; \n"
+    command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = 2021  AND pu_month = 5; \n"
     file.write(command)
 
 file.close()
