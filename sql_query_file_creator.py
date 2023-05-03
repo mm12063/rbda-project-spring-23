@@ -7,9 +7,9 @@ if not os.path.exists(MAIN_DIR):
     os.mkdir(MAIN_DIR)
 
 YEAR_START = 2015
-YEAR_END = 2015
+YEAR_END = 2021
 MONTH_START = 1
-MONTH_END = 2
+MONTH_END = 12
 
 # output_file = f"./{MAIN_DIR}/seasons.sql"
 # if os.path.exists(output_file):
@@ -33,7 +33,7 @@ if os.path.exists(output_file):
 with open(output_file, "a") as file:
     for year in range(YEAR_START, YEAR_END+1):
         for month in range(MONTH_START, MONTH_END+1):
-            command = f"SELECT COUNT(*) as htp_{year}_{month} FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1 OR htp_pm = 1; \n"
+            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1 OR htp_pm = 1; \n"
             file.write(command)
 file.close()
 
