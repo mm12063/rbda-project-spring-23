@@ -33,34 +33,34 @@ public class YellowTaxiStats {
 
     public static void main(String[] args) throws Exception {
 
-        Configuration conf = new Configuration();
-        conf.set("mapred.textoutputformat.separator", ",");
-        Job job = Job.getInstance(conf);
-        job.setJarByClass(YellowTaxiStats.class);
-        job.setJobName("YellowTaxiStats");
-        job.setNumReduceTasks(1);
+//        Configuration conf = new Configuration();
+//        conf.set("mapred.textoutputformat.separator", ",");
+//        Job job = Job.getInstance(conf);
+//        job.setJarByClass(YellowTaxiStats.class);
+//        job.setJobName("YellowTaxiStats");
+//        job.setNumReduceTasks(1);
+//
+        int MAX_FILES = 102; // Just a subset of the files as dataproc kept crashing under the strain of all 103 files
+        String main_dir = args[1];
 
-        int MAX_FILES = 10; // Just a subset of the files as dataproc kept crashing under the strain of all 103 files
-//        String main_dir = args[1];
-
-//        for (int file_num = 0; file_num <= MAX_FILES; file_num++) {
-//            String input = main_dir + "/part-m-" + leftZeroPad(file_num);
-//            MultipleInputs.addInputPath(job, new Path(input), TextInputFormat.class, YellowTaxiStatsMapper.class);
-//        }
-
-        String input_file = args[1];
-        MultipleInputs.addInputPath(job, new Path(input_file), TextInputFormat.class, YellowTaxiStatsMapper.class);
-
-        String out_path_str = args[2];
-        Path out_path = new Path(out_path_str);
-        FileUtils.deleteDirectory(new File(out_path_str));
-//        job.setCombinerClass(taxi.YellowTaxiStatsReducer.class);
-        job.setReducerClass(YellowTaxiStatsReducer.class);
-        job.setOutputFormatClass(TextOutputFormat.class);
-        TextOutputFormat.setOutputPath(job, out_path);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(YellowTaxiStatsTuple.class);
-        job.waitForCompletion(true);
+////        for (int file_num = 0; file_num <= MAX_FILES; file_num++) {
+////            String input = main_dir + "/part-m-" + leftZeroPad(file_num);
+////            MultipleInputs.addInputPath(job, new Path(input), TextInputFormat.class, YellowTaxiStatsMapper.class);
+////        }
+//
+//        String input_file = args[1];
+//        MultipleInputs.addInputPath(job, new Path(input_file), TextInputFormat.class, YellowTaxiStatsMapper.class);
+//
+//        String out_path_str = args[2];
+//        Path out_path = new Path(out_path_str);
+//        FileUtils.deleteDirectory(new File(out_path_str));
+////        job.setCombinerClass(taxi.YellowTaxiStatsReducer.class);
+//        job.setReducerClass(YellowTaxiStatsReducer.class);
+//        job.setOutputFormatClass(TextOutputFormat.class);
+//        TextOutputFormat.setOutputPath(job, out_path);
+//        job.setOutputKeyClass(Text.class);
+//        job.setOutputValueClass(YellowTaxiStatsTuple.class);
+//        job.waitForCompletion(true);
 
 
 //        // Job
@@ -103,6 +103,37 @@ public class YellowTaxiStats {
 //        FileInputFormat.addInputPath(job_top_10, new Path(args[3]));
 //        FileOutputFormat.setOutputPath(job_top_10, new Path(args[3]+"_top10"));
 //        job_top_10.waitForCompletion(true);
+
+
+
+        // Job
+        // Count the number of times passengers are picked up at certain location id
+        String pu_loc_counter_file = args[2];
+        Path pu_loc_counter = new Path(pu_loc_counter_file);
+        FileUtils.deleteDirectory(new File(pu_loc_counter_file));
+        Configuration conf_counter = new Configuration();
+        conf_counter.set("mapred.textoutputformat.separator", ",");
+        Job job_loc_id_count = Job.getInstance(conf_counter);
+        job_loc_id_count.setJarByClass(YellowTaxiStats.class);
+        job_loc_id_count.setJobName("Job Name: YellowTaxiStatsLocIDCounter");
+        job_loc_id_count.setNumReduceTasks(1);
+
+        for (int file_num = 0; file_num <= MAX_FILES; file_num++) {
+            String input = main_dir + "/part-m-" + leftZeroPad(file_num);
+            MultipleInputs.addInputPath(job_loc_id_count, new Path(input), TextInputFormat.class, YellowTaxiStatsCountZonesMapper.class);
+        }
+
+//        String input_file = args[1];
+//        MultipleInputs.addInputPath(job_loc_id_count, new Path(input_file), TextInputFormat.class, YellowTaxiStatsCountZonesMapper.class);
+
+        job_loc_id_count.setCombinerClass(YellowTaxiStatsCountZonesReducer.class);
+        job_loc_id_count.setReducerClass(YellowTaxiStatsCountZonesReducer.class);
+        job_loc_id_count.setOutputFormatClass(TextOutputFormat.class);
+        TextOutputFormat.setOutputPath(job_loc_id_count, pu_loc_counter);
+        job_loc_id_count.setOutputKeyClass(Text.class);
+        job_loc_id_count.setOutputValueClass(IntWritable.class);
+        job_loc_id_count.waitForCompletion(true);
+
 
     }
 }

@@ -1,9 +1,13 @@
 package taxi;
 
 public enum ColNames {
-    PU_DATE,
+    PU_MONTH,
+    PU_DAY,
+    PU_YEAR,
     PU_TIME,
-    DO_DATE,
+    DO_MONTH,
+    DO_DAY,
+    DO_YEAR,
     DO_TIME,
     HTP_AM,
     HTP_PM,

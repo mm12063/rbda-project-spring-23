@@ -41,7 +41,7 @@ public class YellowTaxi {
         int MONTH_ST = 1;
         int MONTH_END = 12;
 
-        File f = new File("./flag_file.txt");
+        File f = new File("./flag.txt");
         if(f.exists()) {
             YEAR_ST = 2020;
             YEAR_END = 2020;
