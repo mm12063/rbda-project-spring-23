@@ -27,9 +27,9 @@ plt.bar(br2, subway, color='navy', width=barWidth,
         edgecolor='grey', label='Subway')
 plt.bar(br3, lyft, color='turquoise', width=barWidth,
         edgecolor='grey', label='Uber/Lyft')
-plt.xticks(rotation=45,fontsize=19)
 
 
+plt.xticks(rotation=45, fontsize=19)
 plt.xlabel('Seasons', fontweight='bold', fontsize=22)
 plt.ylabel('Passengers', fontweight='bold', fontsize=22)
 plt.xticks([r + barWidth for r in range(len(yellow_taxi))],
