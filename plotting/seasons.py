@@ -5,14 +5,17 @@ import pandas as pd
 barWidth = 0.25
 fig = plt.subplots(figsize=(25, 15))
 
-df = pd.read_csv('plotting/input_data/seasons_output_yellow_taxi.txt', header=None)
+df = pd.read_csv('sql_output/seasons_output_yello_taxi.txt', header=None)
 yellow_taxi = [row[0] for _, row in df.iterrows()]
 
 df = pd.read_csv('plotting/input_data/seasons_output_subway.txt', header=None)
 subway = [row[0] for _, row in df.iterrows()]
 
+subway = [x * 0.5 for x in subway]
 
-lyft = [x * 0.3 for x in subway] #TODO update with real data
+
+df = pd.read_csv('plotting/input_data/fhv_seasons.csv', header=None)
+fhv = [row[0] for _, row in df.iterrows()]
 
 
 # Set position of bar on X axis
@@ -22,11 +25,11 @@ br3 = [x + barWidth for x in br2]
 
 # # Make the plot
 plt.bar(br1, yellow_taxi, color='yellow', width=barWidth,
-        edgecolor='grey', label='Yellow Taxi')
+        edgecolor='navy', label='Yellow Taxi')
 plt.bar(br2, subway, color='navy', width=barWidth,
-        edgecolor='grey', label='Subway')
-plt.bar(br3, lyft, color='turquoise', width=barWidth,
-        edgecolor='grey', label='Uber/Lyft')
+        edgecolor='navy', label='Subway * 0.5')
+plt.bar(br3, fhv, color='turquoise', width=barWidth,
+        edgecolor='navy', label='Uber/Lyft')
 
 
 plt.xticks(rotation=45, fontsize=19)
@@ -39,11 +42,10 @@ plt.xticks([r + barWidth for r in range(len(yellow_taxi))],
             'Spr 18', 'Sum 18', 'Aut 18', 'Win 18',
             'Spr 19', 'Sum 19', 'Aut 19', 'Win 19',
             'Spr 20', 'Sum 20', 'Aut 20', 'Win 20',
-            'Spr 21', 'Sum 21', 'Aut 21', 'Win 21',
+            'Spr 21', 'Sum 21', 'Aut 21',
             ])
 
 plt.legend(fontsize="22")
 plt.savefig('plotting/output_plots/seasons.png')
 
 plt.show()
-
