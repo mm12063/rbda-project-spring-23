@@ -6,11 +6,11 @@ MAIN_DIR = 'sql_files'
 if not os.path.exists(MAIN_DIR):
     os.mkdir(MAIN_DIR)
 
-# YEAR_START = 2015
-# YEAR_END = 2021
-# MONTH_START = 1
-# MONTH_END = 12
-#
+YEAR_START = 2015
+YEAR_END = 2021
+MONTH_START = 1
+MONTH_END = 12
+
 # output_file = f"./{MAIN_DIR}/seasons.sql"
 # if os.path.exists(output_file):
 #     os.remove(output_file)
@@ -25,17 +25,18 @@ if not os.path.exists(MAIN_DIR):
 # file.close()
 
 
-# FILE_NAME = "rush_hour"
-# output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
-# if os.path.exists(output_file):
-#     os.remove(output_file)
-#
-# with open(output_file, "a") as file:
-#     for year in range(YEAR_START, YEAR_END+1):
-#         for month in range(MONTH_START, MONTH_END+1):
-#             command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1 OR htp_pm = 1; \n"
-#             file.write(command)
-# file.close()
+FILE_NAME = "rush_hour_am_pm"
+output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
+if os.path.exists(output_file):
+    os.remove(output_file)
+
+with open(output_file, "a") as file:
+    for year in range(YEAR_START, YEAR_END+1):
+        for month in range(MONTH_START, MONTH_END+1):
+            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1; \n"
+            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_pm = 1; \n"
+            file.write(command)
+file.close()
 
 
 # FILE_NAME = "covid_waves"
@@ -120,16 +121,34 @@ YEAR_END = 2021
 MONTH_START = 1
 MONTH_END = 12
 
-FILE_NAME = "cost_avg_per_month"
-output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
-if os.path.exists(output_file):
-    os.remove(output_file)
+# FILE_NAME = "cost_avg_per_month"
+# output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
+# if os.path.exists(output_file):
+#     os.remove(output_file)
+#
+# with open(output_file, "a") as file:
+#     for year in range(YEAR_START, YEAR_END+1):
+#         command = f"SELECT AVG(cost) FROM yellow_taxi WHERE pu_year = {year}; \n"
+#         file.write(command)
+# file.close()
 
-with open(output_file, "a") as file:
-    for year in range(YEAR_START, YEAR_END+1):
-        command = f"SELECT AVG(cost) FROM yellow_taxi WHERE pu_year = {year}; \n"
-        file.write(command)
-file.close()
+#
+# FILE_NAME = "dist_avg_per_month"
+# output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
+# if os.path.exists(output_file):
+#     os.remove(output_file)
+#
+# with open(output_file, "a") as file:
+#     for year in range(YEAR_START, YEAR_END+1):
+#         command = f"SELECT AVG(dist) FROM yellow_taxi WHERE pu_year = {year}; \n"
+#         file.write(command)
+# file.close()
+
+
+
+
+
+
 
 print(f"presto --catalog hive --schema default --file sql_files/{FILE_NAME}.sql > sql_output/{FILE_NAME}_output.txt")
 
