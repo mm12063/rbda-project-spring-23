@@ -25,6 +25,8 @@ public class YellowTaxiStatsCountMapper extends Mapper<LongWritable, Text, Text,
                 String pu_loc = values[CleanedCSVMetaData.getColIdx(ColNames.PU_TAXI_ZONE)];
                 pu_loc = pu_loc.replace(" ","_");
                 pu_loc = pu_loc.replace("/","__");
+                pu_loc = pu_loc.replace("'","");
+                pu_loc = pu_loc.replace("-","");
                 String pu_year = values[CleanedCSVMetaData.getColIdx(ColNames.PU_YEAR)];
                 if (year.equals(pu_year))
                     context.write(new Text(pu_loc), new IntWritable(1));
