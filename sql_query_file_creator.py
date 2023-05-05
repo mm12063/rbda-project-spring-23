@@ -97,23 +97,39 @@ if not os.path.exists(MAIN_DIR):
 #
 
 
+# YEAR_START = 2015
+# YEAR_END = 2021
+# MONTH_START = 1
+# MONTH_END = 12
+#
+# FILE_NAME = "trips_per_month"
+# output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
+# if os.path.exists(output_file):
+#     os.remove(output_file)
+#
+# with open(output_file, "a") as file:
+#     for year in range(YEAR_START, YEAR_END+1):
+#         for month in range(MONTH_START, MONTH_END+1):
+#             command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month}; \n"
+#             file.write(command)
+# file.close()
+
+
 YEAR_START = 2015
 YEAR_END = 2021
 MONTH_START = 1
 MONTH_END = 12
 
-FILE_NAME = "trips_per_month"
+FILE_NAME = "cost_avg_per_month"
 output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
 if os.path.exists(output_file):
     os.remove(output_file)
 
 with open(output_file, "a") as file:
     for year in range(YEAR_START, YEAR_END+1):
-        for month in range(MONTH_START, MONTH_END+1):
-            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month}; \n"
-            file.write(command)
+        command = f"SELECT AVG(total_cost) FROM yellow_taxi WHERE pu_year = {year}; \n"
+        file.write(command)
 file.close()
-
 
 print(f"presto --catalog hive --schema default --file sql_files/{FILE_NAME}.sql > sql_output/{FILE_NAME}_output.txt")
 
