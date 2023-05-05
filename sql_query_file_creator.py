@@ -25,7 +25,21 @@ MONTH_END = 12
 # file.close()
 
 
-FILE_NAME = "rush_hour_am_pm"
+# FILE_NAME = "rush_hour_am_pm"
+# output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
+# if os.path.exists(output_file):
+#     os.remove(output_file)
+#
+# with open(output_file, "a") as file:
+#     for year in range(YEAR_START, YEAR_END+1):
+#         for month in range(MONTH_START, MONTH_END+1):
+#             command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1; \n"
+#             command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_pm = 1; \n"
+#             file.write(command)
+# file.close()
+
+
+FILE_NAME = "day_period"
 output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
 if os.path.exists(output_file):
     os.remove(output_file)
@@ -33,8 +47,11 @@ if os.path.exists(output_file):
 with open(output_file, "a") as file:
     for year in range(YEAR_START, YEAR_END+1):
         for month in range(MONTH_START, MONTH_END+1):
-            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1; \n"
-            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_pm = 1; \n"
+            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Morning'; \n"
+            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Afternoon'; \n"
+            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Evening'; \n"
+            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Late Evening'; \n"
+            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Late Night'; \n"
             file.write(command)
 file.close()
 
