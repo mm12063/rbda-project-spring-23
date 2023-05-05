@@ -13,10 +13,9 @@ public class YellowTaxiStatsMapper extends Mapper<LongWritable, Text, Text, Yell
             throws IOException, InterruptedException {
 
         String[] values = value.toString().split(",");
-        if (!values[0].equals("pu_date")) { // If it's the column name row, ignore it totally
+        if (!values[0].equals("pu_month")) { // If it's the column name row, ignore it totally
             try {
                 double trip_dist = Double.parseDouble(values[CleanedCSVMetaData.getColIdx(ColNames.TRIP_DISTANCE)]);
-                System.out.println(trip_dist);
                 outTuple.setMin(trip_dist);
                 outTuple.setMax(trip_dist);
                 outTuple.setDistAvg(trip_dist);
