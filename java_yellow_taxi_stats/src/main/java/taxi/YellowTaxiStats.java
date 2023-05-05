@@ -66,7 +66,7 @@ public class YellowTaxiStats {
 
         // Job
         // Count the number of times passengers are picked up at certain location id
-        String counter_out_path_str = args[3];
+        String counter_out_path_str = args[2];
         Path counter_out_path = new Path(counter_out_path_str);
         FileUtils.deleteDirectory(new File(counter_out_path_str));
         Configuration conf_counter = new Configuration();
@@ -105,8 +105,8 @@ public class YellowTaxiStats {
         job_top_10.setOutputKeyClass(NullWritable.class);
         job_top_10.setOutputValueClass(Text.class);
         // Use the output file from the previous job as the input to this job
-        FileInputFormat.addInputPath(job_top_10, new Path(args[3]));
-        FileOutputFormat.setOutputPath(job_top_10, new Path(args[3]+"_top10"));
+        FileInputFormat.addInputPath(job_top_10, new Path(args[2]));
+        FileOutputFormat.setOutputPath(job_top_10, new Path(args[2]+"_top10"));
         job_top_10.waitForCompletion(true);
 
 
