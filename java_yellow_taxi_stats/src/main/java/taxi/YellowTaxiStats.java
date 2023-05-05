@@ -62,8 +62,10 @@ public class YellowTaxiStats {
 //        job.setOutputValueClass(YellowTaxiStatsTuple.class);
 //        job.waitForCompletion(true);
 
+
         int YEAR_START = 2015;
         int YEAR_END = 2021;
+        FileUtils.deleteDirectory(new File(args[2]));
 
         for (int year = YEAR_START; year <= YEAR_END; year++){
 
@@ -71,7 +73,6 @@ public class YellowTaxiStats {
             // Count the number of times passengers are picked up at certain location id
             String counter_out_path_str = args[2] +"/"+ year;
             Path counter_out_path = new Path(counter_out_path_str);
-            FileUtils.deleteDirectory(new File(counter_out_path_str));
             Configuration conf_counter = new Configuration();
             conf_counter.set("mapred.textoutputformat.separator", ",");
             conf_counter.set("year", ""+year);
@@ -80,9 +81,15 @@ public class YellowTaxiStats {
             job_counter.setJobName("Job Name: YellowTaxiStatsCounter for Top 10 for "+year);
             job_counter.setNumReduceTasks(1);
 
-            for (int file_num = 0; file_num <= MAX_FILES; file_num++) {
-                String input = main_dir + "/part-m-" + leftZeroPad(file_num);
-                MultipleInputs.addInputPath(job_counter, new Path(input), TextInputFormat.class, YellowTaxiStatsCountMapper.class);
+            File f = new File("./flag.txt");
+            if(f.exists()) {
+                String input_file = args[1];
+                MultipleInputs.addInputPath(job_counter, new Path(input_file), TextInputFormat.class, YellowTaxiStatsCountMapper.class);
+            } else {
+                for (int file_num = 0; file_num <= MAX_FILES; file_num++) {
+                    String input = main_dir + "/part-m-" + leftZeroPad(file_num);
+                    MultipleInputs.addInputPath(job_counter, new Path(input), TextInputFormat.class, YellowTaxiStatsCountMapper.class);
+                }
             }
 
             job_counter.setCombinerClass(YellowTaxiStatsCounterReducer.class);
