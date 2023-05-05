@@ -69,7 +69,7 @@ public class YellowTaxiStats {
 
             // Job
             // Count the number of times passengers are picked up at certain location id
-            String counter_out_path_str = args[2] +"_"+ year;
+            String counter_out_path_str = args[2] +"/"+ year;
             Path counter_out_path = new Path(counter_out_path_str);
             FileUtils.deleteDirectory(new File(counter_out_path_str));
             Configuration conf_counter = new Configuration();
