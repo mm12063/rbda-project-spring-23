@@ -30,14 +30,17 @@ public class YellowTaxiStatsCountMapper extends Mapper<LongWritable, Text, Text,
         String[] values = value.toString().split(",");
         if (!values[0].equals("pu_date")) {
             try {
-                String pu_loc = values[CleanedCSVMetaData.getColIdx(ColNames.PU_TAXI_ZONE)];
-                pu_loc = clean_location_str(pu_loc);
-                String do_loc = values[CleanedCSVMetaData.getColIdx(ColNames.DO_TAXI_ZONE)];
-                do_loc = clean_location_str(do_loc);
+//                String pu_loc = values[CleanedCSVMetaData.getColIdx(ColNames.PU_TAXI_ZONE)];
+//                pu_loc = clean_location_str(pu_loc);
+//                String do_loc = values[CleanedCSVMetaData.getColIdx(ColNames.DO_TAXI_ZONE)];
+//                do_loc = clean_location_str(do_loc);
 
+//                String trip_period = values[CleanedCSVMetaData.getColIdx(ColNames.TRIP_PERIOD)];
+                String payment = values[CleanedCSVMetaData.getColIdx(ColNames.PAYMENT_TYPE)];
                 String pu_year = values[CleanedCSVMetaData.getColIdx(ColNames.PU_YEAR)];
                 if (year.equals(pu_year))
-                    context.write(new Text(pu_loc+"___"+do_loc), new IntWritable(1));
+//                    context.write(new Text(pu_loc+"___"+do_loc), new IntWritable(1));
+                    context.write(new Text(payment), new IntWritable(1));
             } catch (Exception e) {
                 System.out.println("Couldn't read DO_TAXI_ZONE value from csv");
                 System.out.println(e.getMessage());
