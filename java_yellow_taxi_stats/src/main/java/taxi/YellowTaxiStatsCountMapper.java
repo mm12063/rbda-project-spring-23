@@ -22,7 +22,7 @@ public class YellowTaxiStatsCountMapper extends Mapper<LongWritable, Text, Text,
         String[] values = value.toString().split(",");
         if (!values[0].equals("pu_date")) {
             try {
-                String pu_loc = values[CleanedCSVMetaData.getColIdx(ColNames.PU_TAXI_ZONE)];
+                String pu_loc = values[CleanedCSVMetaData.getColIdx(ColNames.DO_TAXI_ZONE)];
                 pu_loc = pu_loc.replace(" ","_");
                 pu_loc = pu_loc.replace("/","__");
                 pu_loc = pu_loc.replace("'","");
@@ -31,7 +31,7 @@ public class YellowTaxiStatsCountMapper extends Mapper<LongWritable, Text, Text,
                 if (year.equals(pu_year))
                     context.write(new Text(pu_loc), new IntWritable(1));
             } catch (Exception e) {
-                System.out.println("Couldn't read pu_loc_id value from csv");
+                System.out.println("Couldn't read DO_TAXI_ZONE value from csv");
                 System.out.println(e.getMessage());
             }
         }
