@@ -74,6 +74,7 @@ public class YellowTaxiStats {
             FileUtils.deleteDirectory(new File(counter_out_path_str));
             Configuration conf_counter = new Configuration();
             conf_counter.set("mapred.textoutputformat.separator", ",");
+            conf_counter.set("year", ""+year);
             Job job_counter = Job.getInstance(conf_counter);
             job_counter.setJarByClass(YellowTaxiStats.class);
             job_counter.setJobName("Job Name: YellowTaxiStatsCounter for Top 10 for "+year);
