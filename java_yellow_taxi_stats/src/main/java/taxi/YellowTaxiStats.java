@@ -68,6 +68,7 @@ public class YellowTaxiStats {
         // Count the number of times passengers are picked up at certain location id
         String counter_out_path_str = args[3];
         Path counter_out_path = new Path(counter_out_path_str);
+        FileUtils.deleteDirectory(new File(counter_out_path_str));
         Configuration conf_counter = new Configuration();
         conf_counter.set("mapred.textoutputformat.separator", ",");
         Job job_counter = Job.getInstance(conf_counter);
@@ -79,6 +80,9 @@ public class YellowTaxiStats {
             String input = main_dir + "/part-m-" + leftZeroPad(file_num);
             MultipleInputs.addInputPath(job_counter, new Path(input), TextInputFormat.class, YellowTaxiStatsCountMapper.class);
         }
+
+//        String input_file = args[1];
+//        MultipleInputs.addInputPath(job_counter, new Path(input_file), TextInputFormat.class, YellowTaxiStatsMapper.class);
 
         job_counter.setCombinerClass(YellowTaxiStatsCounterReducer.class);
         job_counter.setReducerClass(YellowTaxiStatsCounterReducer.class);
