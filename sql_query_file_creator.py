@@ -127,7 +127,7 @@ if os.path.exists(output_file):
 
 with open(output_file, "a") as file:
     for year in range(YEAR_START, YEAR_END+1):
-        command = f"SELECT AVG(total_cost) FROM yellow_taxi WHERE pu_year = {year}; \n"
+        command = f"SELECT AVG('total_cost') FROM yellow_taxi WHERE pu_year = {year}; \n"
         file.write(command)
 file.close()
 
