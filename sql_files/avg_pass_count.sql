@@ -1,1 +1,1 @@
-SELECT AVG(passenger_count) FROM yellow_taxi;
+SELECT AVG(passengers) FROM yellow_taxi;
