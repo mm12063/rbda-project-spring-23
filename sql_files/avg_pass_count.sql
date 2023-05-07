@@ -1,0 +1,1 @@
+SELECT AVG(passenger_count) FROM yellow_taxi;
