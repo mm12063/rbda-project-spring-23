@@ -49,9 +49,7 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
             try {
                 FileSystem fs = FileSystem.get(context.getConfiguration());
                 Path getFilePath = new Path(cacheFiles[0].toString());
-
                 BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(getFilePath)));
-
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] data = line.split(",");
@@ -60,7 +58,6 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
                     }
                 }
                 reader.close();
-
             } catch (Exception ex) {
                 System.out.println(ex.getLocalizedMessage());
             }
@@ -77,24 +74,24 @@ public class YellowTaxiMapper extends Mapper<LongWritable, SimpleGroup, NullWrit
 
         String csv_header =
                 "pu_month" + "," +
-                "pu_day" + "," +
-                "pu_year" + "," +
-                "pu_time" + "," +
-                "do_month" + "," +
-                "do_day" + "," +
-                "do_year" + "," +
-                "do_time" + "," +
-                "htp_am" + "," +
-                "htp_pm" + "," +
-                "trip_period" + "," +
-                "passenger_count" + "," +
-                "trip_distance" + "," +
-                "pu_loc_id" + "," +
-                "pu_taxi_zone" + "," +
-                "do_loc_id" + "," +
-                "do_taxi_zone" + "," +
-                "payment_type_readable" + "," +
-                "total_cost";
+                        "pu_day" + "," +
+                        "pu_year" + "," +
+                        "pu_time" + "," +
+                        "do_month" + "," +
+                        "do_day" + "," +
+                        "do_year" + "," +
+                        "do_time" + "," +
+                        "htp_am" + "," +
+                        "htp_pm" + "," +
+                        "trip_period" + "," +
+                        "passenger_count" + "," +
+                        "trip_distance" + "," +
+                        "pu_loc_id" + "," +
+                        "pu_taxi_zone" + "," +
+                        "do_loc_id" + "," +
+                        "do_taxi_zone" + "," +
+                        "payment_type_readable" + "," +
+                        "total_cost";
 
         context.write(NullWritable.get(), new Text(csv_header));
     }

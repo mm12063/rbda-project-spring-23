@@ -19,7 +19,7 @@ public class YellowTaxiStatsTop10Mapper extends Mapper<LongWritable, Text, NullW
         String total = values[1];
 
         repToRecordMap.put(Integer.parseInt(total), new Text(location));
-        if (repToRecordMap.size() > 6)
+        if (repToRecordMap.size() > 5)
             repToRecordMap.remove(repToRecordMap.firstKey());
     }
 

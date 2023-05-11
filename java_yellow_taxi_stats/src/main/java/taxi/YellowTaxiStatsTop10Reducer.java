@@ -18,7 +18,7 @@ public class YellowTaxiStatsTop10Reducer
         for (Text value: values){
             String[] vals = value.toString().split(",");
             repToRecordMap.put(Integer.parseInt(vals[0]), new Text(vals[1]));
-            if (repToRecordMap.size() > 6)
+            if (repToRecordMap.size() > 5)
                 repToRecordMap.remove(repToRecordMap.firstKey());
         }
 

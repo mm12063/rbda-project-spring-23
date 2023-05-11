@@ -39,7 +39,7 @@ MONTH_END = 12
 # file.close()
 
 
-FILE_NAME = "day_period"
+FILE_NAME = "trips_outside_rush_hour_am_pm"
 output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
 if os.path.exists(output_file):
     os.remove(output_file)
@@ -47,13 +47,27 @@ if os.path.exists(output_file):
 with open(output_file, "a") as file:
     for year in range(YEAR_START, YEAR_END+1):
         for month in range(MONTH_START, MONTH_END+1):
-            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Morning'; \n"
-            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Afternoon'; \n"
-            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Evening'; \n"
-            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Late Evening'; \n"
-            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Late Night'; \n"
+            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND " \
+                      f"pu_month = {month} AND htp_am = 0 AND htp_pm = 0; \n"
             file.write(command)
 file.close()
+
+
+# FILE_NAME = "day_period"
+# output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
+# if os.path.exists(output_file):
+#     os.remove(output_file)
+#
+# with open(output_file, "a") as file:
+#     for year in range(YEAR_START, YEAR_END+1):
+#         for month in range(MONTH_START, MONTH_END+1):
+#             command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Morning'; \n"
+#             command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Afternoon'; \n"
+#             command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Evening'; \n"
+#             command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Late Evening'; \n"
+#             command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND day_period = 'Late Night'; \n"
+#             file.write(command)
+# file.close()
 
 
 # FILE_NAME = "covid_waves"
@@ -138,26 +152,26 @@ YEAR_END = 2021
 MONTH_START = 1
 MONTH_END = 12
 
-# FILE_NAME = "cost_avg_per_month"
+# FILE_NAME = "cost_avg_per_year_2"
 # output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
 # if os.path.exists(output_file):
 #     os.remove(output_file)
 #
 # with open(output_file, "a") as file:
 #     for year in range(YEAR_START, YEAR_END+1):
-#         command = f"SELECT AVG(cost) FROM yellow_taxi WHERE pu_year = {year}; \n"
+#         command = f"SELECT AVG(cost) FROM yellow_taxi WHERE cost < 100 AND pu_year = {year}; \n"
 #         file.write(command)
 # file.close()
 
-#
-# FILE_NAME = "dist_avg_per_month"
+
+# FILE_NAME = "dist_avg_per_year_2"
 # output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
 # if os.path.exists(output_file):
 #     os.remove(output_file)
 #
 # with open(output_file, "a") as file:
 #     for year in range(YEAR_START, YEAR_END+1):
-#         command = f"SELECT AVG(dist) FROM yellow_taxi WHERE pu_year = {year}; \n"
+#         command = f"SELECT AVG(dist) FROM yellow_taxi WHERE pu_year = {year} AND dist < 6; \n"
 #         file.write(command)
 # file.close()
 
