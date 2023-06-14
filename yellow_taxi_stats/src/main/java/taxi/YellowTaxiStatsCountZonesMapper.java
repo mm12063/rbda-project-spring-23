@@ -17,9 +17,8 @@ public class YellowTaxiStatsCountZonesMapper extends Mapper<LongWritable, Text, 
                 String pu_loc = values[CleanedCSVMetaData.getColIdx(ColNames.PU_LOC_ID)];
                 String pu_year = values[CleanedCSVMetaData.getColIdx(ColNames.PU_YEAR)];
                 String pu_month = values[CleanedCSVMetaData.getColIdx(ColNames.PU_MONTH)];
-
                 String full_key = pu_year +"_"+ pu_month +"_"+ pu_loc;
-
+                
                 context.write(new Text(full_key), new IntWritable(1));
             } catch (Exception e) {
                 System.out.println("Couldn't read pu_loc_id value from csv");

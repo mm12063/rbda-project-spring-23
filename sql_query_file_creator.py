@@ -25,18 +25,18 @@ MONTH_END = 12
 # file.close()
 
 
-# FILE_NAME = "rush_hour_am_pm"
-# output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
-# if os.path.exists(output_file):
-#     os.remove(output_file)
-#
-# with open(output_file, "a") as file:
-#     for year in range(YEAR_START, YEAR_END+1):
-#         for month in range(MONTH_START, MONTH_END+1):
-#             command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1; \n"
-#             command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_pm = 1; \n"
-#             file.write(command)
-# file.close()
+FILE_NAME = "rush_hour_am_pm"
+output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"
+if os.path.exists(output_file):
+    os.remove(output_file)
+
+with open(output_file, "a") as file:
+    for year in range(YEAR_START, YEAR_END+1):
+        for month in range(MONTH_START, MONTH_END+1):
+            command = f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_am = 1; \n"
+            command += f"SELECT COUNT(*) FROM yellow_taxi WHERE pu_year = {year} AND pu_month = {month} AND htp_pm = 1; \n"
+            file.write(command)
+file.close()
 
 
 FILE_NAME = "trips_outside_rush_hour_am_pm"
@@ -125,8 +125,8 @@ file.close()
 #                 file.write(command)
 #
 # file.close()
-#
-#
+
+
 
 
 # YEAR_START = 2015
@@ -147,10 +147,12 @@ file.close()
 # file.close()
 
 
-YEAR_START = 2015
-YEAR_END = 2021
-MONTH_START = 1
-MONTH_END = 12
+
+
+# YEAR_START = 2015
+# YEAR_END = 2021
+# MONTH_START = 1
+# MONTH_END = 12
 
 # FILE_NAME = "cost_avg_per_year_2"
 # output_file = f"./{MAIN_DIR}/{FILE_NAME}.sql"

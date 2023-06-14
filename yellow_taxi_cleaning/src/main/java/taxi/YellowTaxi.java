@@ -10,13 +10,8 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.parquet.hadoop.ParquetInputFormat;
 import org.apache.parquet.hadoop.example.GroupReadSupport;
-
-
-//import java.io.File;
 import java.io.File;
 import java.net.URI;
-//import java.nio.file.Files;
-//import java.nio.file.Paths;
 
 public class YellowTaxi {
 
@@ -31,11 +26,6 @@ public class YellowTaxi {
     }
 
     public static void main(String[] args) throws Exception {
-//        if (args.length != 3) {
-//            System.err.println("Usage: taxi.YellowTaxi <input path> <input path> <output path>");
-//            System.exit(-1);
-//        }
-
         int YEAR_ST = 2015;
         int YEAR_END = 2021;
         int MONTH_ST = 1;

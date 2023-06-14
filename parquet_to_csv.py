@@ -8,12 +8,10 @@ MAIN_DIR = 'parquet_files'
 START_YR = 2020
 END_YR = 2020
 
-# CSV_DIR = 'csv_files'
 CSV_DIR = 'csv_files_small'
 if not os.path.exists(CSV_DIR):
     os.mkdir(CSV_DIR)
 
-# BLOCK_SIZE = 5000000
 BLOCK_SIZE = 1000
 total_byte_size = 0
 
@@ -21,9 +19,7 @@ START_MONTH = 6
 END_MONTH = 6
 
 for year in range(START_YR, END_YR + 1):
-    # if year >= 2019:
-    #     BLOCK_SIZE = 1170000
-
+    
     for month in range(START_MONTH, END_MONTH + 1):
         month_num = f'{month:02}'
         parq_file = f"{MAIN_DIR}/{year}/yellow_tripdata_{year}-{month_num}.parquet"
