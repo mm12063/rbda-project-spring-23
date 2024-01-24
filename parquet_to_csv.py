@@ -34,14 +34,6 @@ for year in range(START_YR, END_YR + 1):
         if not os.path.exists(csv_year_loc):
             os.mkdir(csv_year_loc)
 
-        # counter = 0
-        # for num in range(0, total_rows, BLOCK_SIZE):
-        #     print(f"{counter} Splitting rows: {num} - {num + BLOCK_SIZE}")
-        #     rows = df[num:num+BLOCK_SIZE]
-        #     full_path = f"{file_path}{counter}.csv"
-        #     rows.to_csv(full_path)
-        #     counter += 1
-
         counter = 0
         for num in range(0, BLOCK_SIZE * 2, BLOCK_SIZE):
             print(f"{counter} Splitting rows: {num} - {num + BLOCK_SIZE}")
